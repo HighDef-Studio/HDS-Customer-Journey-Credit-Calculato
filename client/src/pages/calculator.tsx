@@ -47,7 +47,6 @@ export default function Calculator() {
   });
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [channelFilters, setChannelFilters] = useState({
     sms: true,
     email: true,
@@ -545,6 +544,7 @@ export default function Calculator() {
 
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
+    setChannelFilters({ sms: true, email: true, push: true });
     setJourneyStages(prev => prev.map(stage => ({ ...stage, selected: false })));
     setExpandedStages(new Set());
     // Reset message types to unselected but keep them initialized
@@ -573,7 +573,7 @@ export default function Calculator() {
               <h1 className="text-xl font-semibold text-gray-900">Credit Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
+              <Button variant="ghost" size="sm" onClick={handleReset}>
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
@@ -627,6 +627,8 @@ export default function Calculator() {
             <ConfigurationPanel
               creditRates={creditRates}
               onCreditRatesChange={setCreditRates}
+              channelFilters={channelFilters}
+              onChannelFiltersChange={setChannelFilters}
               totals={totals}
             />
           </div>

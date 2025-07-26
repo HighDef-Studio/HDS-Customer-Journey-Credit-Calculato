@@ -1,11 +1,18 @@
 import { Settings } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { type CreditRates } from '@shared/schema';
 
 interface ConfigurationPanelProps {
   creditRates: CreditRates;
   onCreditRatesChange: (rates: CreditRates) => void;
+  channelFilters: {
+    sms: boolean;
+    email: boolean;
+    push: boolean;
+  };
+  onChannelFiltersChange: (filters: { sms: boolean; email: boolean; push: boolean; }) => void;
   totals: {
     sms: number;
     email: number;
@@ -14,12 +21,25 @@ interface ConfigurationPanelProps {
   };
 }
 
-export function ConfigurationPanel({ creditRates, onCreditRatesChange, totals }: ConfigurationPanelProps) {
+export function ConfigurationPanel({ 
+  creditRates, 
+  onCreditRatesChange, 
+  channelFilters, 
+  onChannelFiltersChange, 
+  totals 
+}: ConfigurationPanelProps) {
   const handleRateChange = (channel: keyof CreditRates, value: string) => {
     const numValue = parseFloat(value) || 0;
     onCreditRatesChange({
       ...creditRates,
       [channel]: numValue
+    });
+  };
+
+  const handleChannelFilterChange = (channel: keyof typeof channelFilters, checked: boolean) => {
+    onChannelFiltersChange({
+      ...channelFilters,
+      [channel]: checked
     });
   };
 
@@ -86,8 +106,48 @@ export function ConfigurationPanel({ creditRates, onCreditRatesChange, totals }:
         </div>
       </div>
 
+      {/* Channel Filters */}
+      <div className="mt-6 pt-4 border-t border-gray-200">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Include in Calculations</h3>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="sms-filter"
+              checked={channelFilters.sms}
+              onCheckedChange={(checked) => handleChannelFilterChange('sms', !!checked)}
+            />
+            <Label htmlFor="sms-filter" className="text-sm text-gray-600">
+              SMS Messages
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="email-filter"
+              checked={channelFilters.email}
+              onCheckedChange={(checked) => handleChannelFilterChange('email', !!checked)}
+            />
+            <Label htmlFor="email-filter" className="text-sm text-gray-600">
+              Email Messages
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="push-filter"
+              checked={channelFilters.push}
+              onCheckedChange={(checked) => handleChannelFilterChange('push', !!checked)}
+            />
+            <Label htmlFor="push-filter" className="text-sm text-gray-600">
+              Push Messages
+            </Label>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Uncheck channels to see calculations for specific message types only
+        </p>
+      </div>
+
       {/* Total Summary */}
-      <div className="mt-8 pt-6 border-t border-gray-200">
+      <div className="mt-6 pt-4 border-t border-gray-200">
         <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Credits Required</h3>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
