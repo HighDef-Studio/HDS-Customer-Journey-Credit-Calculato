@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { type JourneyStage, type MessageType } from '@shared/schema';
 import { journeyStageData } from '@/lib/journey-data';
 
@@ -95,125 +94,80 @@ export function MessageTypeConfigurator({
                 <div className="grid grid-cols-3 gap-2">
                   {/* SMS Channel */}
                   <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                    <div className="flex items-center mb-2">
-                      <Checkbox
-                        checked={messageType.channels.sms.enabled}
-                        onCheckedChange={(checked) => 
-                          onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              sms: { ...messageType.channels.sms, enabled: !!checked }
+                    <Label className="block text-sm font-medium text-gray-900 mb-2">SMS</Label>
+                    <div>
+                      <Label className="block text-xs text-gray-600 mb-1">
+                        Audience Size
+                      </Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={messageType.channels.sms.audienceSize || ''}
+                        onChange={(e) => onUpdateMessageType(messageType.id, {
+                          channels: { 
+                            ...messageType.channels, 
+                            sms: { 
+                              enabled: true,
+                              audienceSize: parseInt(e.target.value) || 0 
                             }
-                          })
-                        }
-                        className="h-4 w-4 mr-2"
+                          }
+                        })}
+                        className="text-sm"
                       />
-                      <Label className="text-sm font-medium text-gray-900">SMS</Label>
                     </div>
-                    {messageType.channels.sms.enabled && (
-                      <div>
-                        <Label className="block text-xs text-gray-600 mb-1">
-                          Audience Size
-                        </Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={messageType.channels.sms.audienceSize}
-                          onChange={(e) => onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              sms: { 
-                                ...messageType.channels.sms, 
-                                audienceSize: parseInt(e.target.value) || 0 
-                              }
-                            }
-                          })}
-                          className="text-sm"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Email Channel */}
                   <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                    <div className="flex items-center mb-2">
-                      <Checkbox
-                        checked={messageType.channels.email.enabled}
-                        onCheckedChange={(checked) => 
-                          onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              email: { ...messageType.channels.email, enabled: !!checked }
+                    <Label className="block text-sm font-medium text-gray-900 mb-2">Email</Label>
+                    <div>
+                      <Label className="block text-xs text-gray-600 mb-1">
+                        Audience Size
+                      </Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={messageType.channels.email.audienceSize || ''}
+                        onChange={(e) => onUpdateMessageType(messageType.id, {
+                          channels: { 
+                            ...messageType.channels, 
+                            email: { 
+                              enabled: true,
+                              audienceSize: parseInt(e.target.value) || 0 
                             }
-                          })
-                        }
-                        className="h-4 w-4 mr-2"
+                          }
+                        })}
+                        className="text-sm"
                       />
-                      <Label className="text-sm font-medium text-gray-900">Email</Label>
                     </div>
-                    {messageType.channels.email.enabled && (
-                      <div>
-                        <Label className="block text-xs text-gray-600 mb-1">
-                          Audience Size
-                        </Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={messageType.channels.email.audienceSize}
-                          onChange={(e) => onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              email: { 
-                                ...messageType.channels.email, 
-                                audienceSize: parseInt(e.target.value) || 0 
-                              }
-                            }
-                          })}
-                          className="text-sm"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Push Channel */}
                   <div className="border border-gray-200 rounded-lg p-2 bg-white">
-                    <div className="flex items-center mb-2">
-                      <Checkbox
-                        checked={messageType.channels.push.enabled}
-                        onCheckedChange={(checked) => 
-                          onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              push: { ...messageType.channels.push, enabled: !!checked }
+                    <Label className="block text-sm font-medium text-gray-900 mb-2">Push</Label>
+                    <div>
+                      <Label className="block text-xs text-gray-600 mb-1">
+                        Audience Size
+                      </Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={messageType.channels.push.audienceSize || ''}
+                        onChange={(e) => onUpdateMessageType(messageType.id, {
+                          channels: { 
+                            ...messageType.channels, 
+                            push: { 
+                              enabled: true,
+                              audienceSize: parseInt(e.target.value) || 0 
                             }
-                          })
-                        }
-                        className="h-4 w-4 mr-2"
+                          }
+                        })}
+                        className="text-sm"
                       />
-                      <Label className="text-sm font-medium text-gray-900">Push</Label>
                     </div>
-                    {messageType.channels.push.enabled && (
-                      <div>
-                        <Label className="block text-xs text-gray-600 mb-1">
-                          Audience Size
-                        </Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={messageType.channels.push.audienceSize}
-                          onChange={(e) => onUpdateMessageType(messageType.id, {
-                            channels: { 
-                              ...messageType.channels, 
-                              push: { 
-                                ...messageType.channels.push, 
-                                audienceSize: parseInt(e.target.value) || 0 
-                              }
-                            }
-                          })}
-                          className="text-sm"
-                        />
-                      </div>
-                    )}
                   </div>
                 </div>
 

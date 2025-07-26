@@ -58,9 +58,9 @@ export default function Calculator() {
     }[messageType.frequency];
 
     return {
-      sms: messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
-      email: messageType.channels.email.enabled ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
-      push: messageType.channels.push.enabled ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
+      sms: messageType.channels.sms.audienceSize > 0 ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
+      email: messageType.channels.email.audienceSize > 0 ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
+      push: messageType.channels.push.audienceSize > 0 ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
     };
   };
 
