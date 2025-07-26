@@ -44,7 +44,7 @@ export function BreakdownModal({
 
         <div className="overflow-y-auto max-h-[70vh] space-y-6">
           {selectedStages.map((stage) => {
-            const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
+            const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id && mt.selected);
             
             if (stageMessageTypes.length === 0) return null;
 

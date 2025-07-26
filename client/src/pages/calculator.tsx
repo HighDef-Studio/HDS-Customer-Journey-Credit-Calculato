@@ -45,17 +45,19 @@ export default function Calculator() {
   };
 
   const getTotalCredits = () => {
-    const totals = messageTypes.reduce(
-      (acc, messageType) => {
-        const credits = calculateCredits(messageType);
-        return {
-          sms: acc.sms + credits.sms,
-          email: acc.email + credits.email,
-          push: acc.push + credits.push,
-        };
-      },
-      { sms: 0, email: 0, push: 0 }
-    );
+    const totals = messageTypes
+      .filter(messageType => messageType.selected)
+      .reduce(
+        (acc, messageType) => {
+          const credits = calculateCredits(messageType);
+          return {
+            sms: acc.sms + credits.sms,
+            email: acc.email + credits.email,
+            push: acc.push + credits.push,
+          };
+        },
+        { sms: 0, email: 0, push: 0 }
+      );
 
     return {
       ...totals,
@@ -64,34 +66,43 @@ export default function Calculator() {
   };
 
   const handleStageToggle = (stageId: string) => {
-    setJourneyStages(prev => 
-      prev.map(stage => 
-        stage.id === stageId 
-          ? { ...stage, selected: !stage.selected }
-          : stage
-      )
-    );
-  };
-
-  const handleAddMessageType = (stageId: string) => {
     const stage = journeyStageData.find(s => s.id === stageId);
     if (!stage) return;
 
-    const newMessageType: MessageType = {
-      id: `${stageId}-${Date.now()}`,
-      journeyStageId: stageId,
-      type: stage.messageTypes[0],
-      frequency: 'one-time',
-      channels: { 
-        sms: { enabled: false, audienceSize: 0 },
-        email: { enabled: false, audienceSize: 0 },
-        push: { enabled: false, audienceSize: 0 }
-      },
-      credits: { sms: 0, email: 0, push: 0 }
-    };
+    setJourneyStages(prev => 
+      prev.map(s => 
+        s.id === stageId 
+          ? { ...s, selected: !s.selected }
+          : s
+      )
+    );
 
-    setMessageTypes(prev => [...prev, newMessageType]);
+    const isCurrentlySelected = journeyStages.find(s => s.id === stageId)?.selected;
+    
+    if (!isCurrentlySelected) {
+      // Stage is being selected - add all message types as checkboxes
+      const newMessageTypes = stage.messageTypes.map(messageType => ({
+        id: `${stageId}-${messageType.replace(/[^a-zA-Z0-9]/g, '-')}`,
+        journeyStageId: stageId,
+        type: messageType,
+        frequency: 'monthly' as const,
+        selected: false,
+        channels: { 
+          sms: { enabled: false, audienceSize: 0 },
+          email: { enabled: false, audienceSize: 0 },
+          push: { enabled: false, audienceSize: 0 }
+        },
+        credits: { sms: 0, email: 0, push: 0 }
+      }));
+      
+      setMessageTypes(prev => [...prev, ...newMessageTypes]);
+    } else {
+      // Stage is being deselected - remove all message types for this stage
+      setMessageTypes(prev => prev.filter(mt => mt.journeyStageId !== stageId));
+    }
   };
+
+  // No longer needed - message types are auto-generated from journey stages
 
   const handleUpdateMessageType = (id: string, updates: Partial<MessageType>) => {
     setMessageTypes(prev => 
@@ -103,9 +114,7 @@ export default function Calculator() {
     );
   };
 
-  const handleRemoveMessageType = (id: string) => {
-    setMessageTypes(prev => prev.filter(mt => mt.id !== id));
-  };
+  // Message types are now managed through journey stage selection
 
   const handleExport = () => {
     const totals = getTotalCredits();
@@ -141,7 +150,7 @@ export default function Calculator() {
     csvRows.push(['']);
     
     selectedStages.forEach((stage) => {
-      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
+      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id && mt.selected);
       
       if (stageMessageTypes.length > 0) {
         csvRows.push([stage.name]);
@@ -225,7 +234,7 @@ export default function Calculator() {
                  'SMS Monthly Credits', 'Email Monthly Credits', 'Push Monthly Credits', 'Total Monthly Credits']);
     
     selectedStages.forEach((stage) => {
-      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
+      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id && mt.selected);
       
       if (stageMessageTypes.length > 0) {
         let isFirstRow = true;
@@ -393,9 +402,7 @@ export default function Calculator() {
               <MessageTypeConfigurator
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
-                onAddMessageType={handleAddMessageType}
                 onUpdateMessageType={handleUpdateMessageType}
-                onRemoveMessageType={handleRemoveMessageType}
                 calculateCredits={calculateCredits}
               />
 

@@ -11,7 +11,7 @@ interface JourneyStageSelectorProps {
 
 export function JourneyStageSelector({ journeyStages, messageTypes, onStageToggle }: JourneyStageSelectorProps) {
   const getStageMessageCount = (stageId: string) => {
-    return messageTypes.filter(mt => mt.journeyStageId === stageId).length;
+    return messageTypes.filter(mt => mt.journeyStageId === stageId && mt.selected).length;
   };
 
   const getAvailableMessageTypesCount = (stageId: string) => {

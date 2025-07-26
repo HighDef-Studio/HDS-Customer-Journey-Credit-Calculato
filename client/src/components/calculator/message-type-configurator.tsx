@@ -11,18 +11,14 @@ import { journeyStageData } from '@/lib/journey-data';
 interface MessageTypeConfiguratorProps {
   journeyStages: JourneyStage[];
   messageTypes: MessageType[];
-  onAddMessageType: (stageId: string) => void;
   onUpdateMessageType: (id: string, updates: Partial<MessageType>) => void;
-  onRemoveMessageType: (id: string) => void;
   calculateCredits: (messageType: MessageType) => MessageType['credits'];
 }
 
 export function MessageTypeConfigurator({
   journeyStages,
   messageTypes,
-  onAddMessageType,
   onUpdateMessageType,
-  onRemoveMessageType,
   calculateCredits
 }: MessageTypeConfiguratorProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
@@ -83,43 +79,40 @@ export function MessageTypeConfigurator({
 
             {isExpanded && (
               <div className="space-y-4">
-                {stageMessageTypes.map((messageType) => {
+                {/* Message Type Checkboxes */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {stageMessageTypes.map((messageType) => (
+                    <div key={messageType.id} className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg bg-white">
+                      <Checkbox
+                        checked={messageType.selected}
+                        onCheckedChange={(checked) => 
+                          onUpdateMessageType(messageType.id, { selected: !!checked })
+                        }
+                        className="h-4 w-4"
+                      />
+                      <Label className="text-sm font-medium text-gray-900 flex-1">
+                        {messageType.type}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Configuration for Selected Message Types */}
+                {stageMessageTypes.filter(mt => mt.selected).map((messageType) => {
                   const credits = calculateCredits(messageType);
                   
                   return (
-                    <div key={messageType.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div key={messageType.id} className="border border-primary-200 rounded-lg p-4 bg-primary-50">
                       <div className="space-y-4">
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                          <div>
-                            <Label className="block text-sm font-medium text-gray-700 mb-2">
-                              Message Type
-                            </Label>
-                            <Select
-                              value={messageType.type}
-                              onValueChange={(value) => onUpdateMessageType(messageType.id, { type: value })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {stageData?.messageTypes.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {type}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div>
-                            <Label className="block text-sm font-medium text-gray-700 mb-2">
-                              Frequency
-                            </Label>
+                        <div className="flex items-center justify-between">
+                          <h5 className="font-medium text-gray-900">{messageType.type}</h5>
+                          <div className="flex items-center space-x-2">
+                            <Label className="text-sm text-gray-700">Frequency:</Label>
                             <Select
                               value={messageType.frequency}
                               onValueChange={(value: any) => onUpdateMessageType(messageType.id, { frequency: value })}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="w-32">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -131,24 +124,13 @@ export function MessageTypeConfigurator({
                               </SelectContent>
                             </Select>
                           </div>
-
-                          <div className="flex justify-end items-end">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => onRemoveMessageType(messageType.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
                         </div>
 
                         {/* Channel Configuration */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           {/* SMS Channel */}
-                          <div className="border border-gray-200 rounded-lg p-4 bg-white">
-                            <div className="flex items-center mb-3">
+                          <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                            <div className="flex items-center mb-2">
                               <Checkbox
                                 checked={messageType.channels.sms.enabled}
                                 onCheckedChange={(checked) => 
@@ -188,8 +170,8 @@ export function MessageTypeConfigurator({
                           </div>
 
                           {/* Email Channel */}
-                          <div className="border border-gray-200 rounded-lg p-4 bg-white">
-                            <div className="flex items-center mb-3">
+                          <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                            <div className="flex items-center mb-2">
                               <Checkbox
                                 checked={messageType.channels.email.enabled}
                                 onCheckedChange={(checked) => 
@@ -229,8 +211,8 @@ export function MessageTypeConfigurator({
                           </div>
 
                           {/* Push Channel */}
-                          <div className="border border-gray-200 rounded-lg p-4 bg-white">
-                            <div className="flex items-center mb-3">
+                          <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                            <div className="flex items-center mb-2">
                               <Checkbox
                                 checked={messageType.channels.push.enabled}
                                 onCheckedChange={(checked) => 
@@ -269,11 +251,9 @@ export function MessageTypeConfigurator({
                             )}
                           </div>
                         </div>
-                      </div>
 
-                      {/* Credit Breakdown */}
-                      <div className="mt-4 pt-4 border-t border-gray-300">
-                        <div className="grid grid-cols-3 gap-4 text-sm">
+                        {/* Credit Breakdown */}
+                        <div className="grid grid-cols-3 gap-4 text-sm pt-3 border-t border-gray-300">
                           <div className="text-center">
                             <div className="text-gray-600">SMS Credits/Month</div>
                             <div className="font-semibold text-gray-900">{Math.round(credits.sms).toLocaleString()}</div>
@@ -291,15 +271,6 @@ export function MessageTypeConfigurator({
                     </div>
                   );
                 })}
-
-                <Button
-                  variant="outline"
-                  onClick={() => onAddMessageType(stage.id)}
-                  className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 hover:border-primary-300 hover:text-primary-600"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Message Type
-                </Button>
               </div>
             )}
           </div>
