@@ -9,11 +9,10 @@ import { journeyStageData } from '@/lib/journey-data';
 interface JourneyStageSelectorProps {
   journeyStages: JourneyStage[];
   messageTypes: MessageType[];
-  onStageToggle: (stageId: string) => void;
   onMessageTypeToggle: (messageTypeId: string) => void;
 }
 
-export function JourneyStageSelector({ journeyStages, messageTypes, onStageToggle, onMessageTypeToggle }: JourneyStageSelectorProps) {
+export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle }: JourneyStageSelectorProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
   const getStageMessageCount = (stageId: string) => {

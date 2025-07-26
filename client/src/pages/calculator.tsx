@@ -24,7 +24,27 @@ export default function Calculator() {
     }))
   );
 
-  const [messageTypes, setMessageTypes] = useState<MessageType[]>([]);
+  // Initialize all message types for all stages so dropdowns are populated
+  const [messageTypes, setMessageTypes] = useState<MessageType[]>(() => {
+    const allMessageTypes: MessageType[] = [];
+    journeyStageData.forEach(stage => {
+      const stageMessageTypes = stage.messageTypes.map(messageType => ({
+        id: `${stage.id}-${messageType.replace(/[^a-zA-Z0-9]/g, '-')}`,
+        journeyStageId: stage.id,
+        type: messageType,
+        frequency: 'monthly' as const,
+        selected: false,
+        channels: { 
+          sms: { enabled: false, audienceSize: 0 },
+          email: { enabled: false, audienceSize: 0 },
+          push: { enabled: false, audienceSize: 0 }
+        },
+        credits: { sms: 0, email: 0, push: 0 }
+      }));
+      allMessageTypes.push(...stageMessageTypes);
+    });
+    return allMessageTypes;
+  });
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
 
   const calculateCredits = (messageType: MessageType): MessageType['credits'] => {
@@ -65,43 +85,7 @@ export default function Calculator() {
     };
   };
 
-  const handleStageToggle = (stageId: string) => {
-    const stage = journeyStageData.find(s => s.id === stageId);
-    if (!stage) return;
-
-    const hasExistingMessageTypes = messageTypes.some(mt => mt.journeyStageId === stageId);
-    
-    if (!hasExistingMessageTypes) {
-      // Stage is being activated - add all message types as options
-      const newMessageTypes = stage.messageTypes.map(messageType => ({
-        id: `${stageId}-${messageType.replace(/[^a-zA-Z0-9]/g, '-')}`,
-        journeyStageId: stageId,
-        type: messageType,
-        frequency: 'monthly' as const,
-        selected: false,
-        channels: { 
-          sms: { enabled: false, audienceSize: 0 },
-          email: { enabled: false, audienceSize: 0 },
-          push: { enabled: false, audienceSize: 0 }
-        },
-        credits: { sms: 0, email: 0, push: 0 }
-      }));
-      
-      setMessageTypes(prev => [...prev, ...newMessageTypes]);
-    } else {
-      // Stage is being deactivated - remove all message types for this stage
-      setMessageTypes(prev => prev.filter(mt => mt.journeyStageId !== stageId));
-    }
-    
-    // Update journey stage selection status based on whether it has message types
-    setJourneyStages(prev => 
-      prev.map(s => 
-        s.id === stageId 
-          ? { ...s, selected: !hasExistingMessageTypes }
-          : s
-      )
-    );
-  };
+  // Stages no longer need to be toggled - they just expand to show message types
 
   const handleMessageTypeToggle = (messageTypeId: string) => {
     setMessageTypes(prev => 
@@ -406,7 +390,6 @@ export default function Calculator() {
               <JourneyStageSelector
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
-                onStageToggle={handleStageToggle}
                 onMessageTypeToggle={handleMessageTypeToggle}
               />
 
