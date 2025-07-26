@@ -64,12 +64,12 @@ export function MessageTypeConfigurator({
           const stage = journeyStages.find(s => s.id === messageType.journeyStageId);
           
           return (
-            <div key={messageType.id} className="border border-primary-200 rounded-lg p-4 bg-primary-50">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
+            <div key={messageType.id} className="border border-primary-200 rounded-lg p-3 bg-primary-50">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
                     <h5 className="font-medium text-gray-900">{messageType.type}</h5>
-                    <p className="text-sm text-gray-600">{stage?.name}</p>
+                    <span className="text-sm text-gray-500">({stage?.name})</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Label className="text-sm text-gray-700">Frequency:</Label>
@@ -77,7 +77,7 @@ export function MessageTypeConfigurator({
                       value={messageType.frequency}
                       onValueChange={(value: any) => onUpdateMessageType(messageType.id, { frequency: value })}
                     >
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-28 h-8">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -92,9 +92,9 @@ export function MessageTypeConfigurator({
                 </div>
 
                 {/* Channel Configuration */}
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {/* SMS Channel */}
-                  <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                  <div className="border border-gray-200 rounded-lg p-2 bg-white">
                     <div className="flex items-center mb-2">
                       <Checkbox
                         checked={messageType.channels.sms.enabled}
@@ -135,7 +135,7 @@ export function MessageTypeConfigurator({
                   </div>
 
                   {/* Email Channel */}
-                  <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                  <div className="border border-gray-200 rounded-lg p-2 bg-white">
                     <div className="flex items-center mb-2">
                       <Checkbox
                         checked={messageType.channels.email.enabled}
@@ -176,7 +176,7 @@ export function MessageTypeConfigurator({
                   </div>
 
                   {/* Push Channel */}
-                  <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                  <div className="border border-gray-200 rounded-lg p-2 bg-white">
                     <div className="flex items-center mb-2">
                       <Checkbox
                         checked={messageType.channels.push.enabled}
@@ -218,18 +218,18 @@ export function MessageTypeConfigurator({
                 </div>
 
                 {/* Credit Breakdown */}
-                <div className="grid grid-cols-3 gap-4 text-sm pt-3 border-t border-gray-300">
+                <div className="flex justify-between items-center text-sm pt-3 border-t border-gray-300 bg-gray-50 px-3 py-2 rounded">
                   <div className="text-center">
-                    <div className="text-gray-600">SMS Credits/Month</div>
-                    <div className="font-semibold text-gray-900">{Math.round(credits.sms).toLocaleString()}</div>
+                    <span className="text-gray-600">SMS: </span>
+                    <span className="font-semibold text-gray-900">{Math.round(credits.sms).toLocaleString()}</span>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-600">Email Credits/Month</div>
-                    <div className="font-semibold text-gray-900">{Math.round(credits.email).toLocaleString()}</div>
+                    <span className="text-gray-600">Email: </span>
+                    <span className="font-semibold text-gray-900">{Math.round(credits.email).toLocaleString()}</span>
                   </div>
                   <div className="text-center">
-                    <div className="text-gray-600">Push Credits/Month</div>
-                    <div className="font-semibold text-gray-900">{Math.round(credits.push).toLocaleString()}</div>
+                    <span className="text-gray-600">Push: </span>
+                    <span className="font-semibold text-gray-900">{Math.round(credits.push).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
