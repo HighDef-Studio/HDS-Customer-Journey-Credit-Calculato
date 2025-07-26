@@ -109,7 +109,7 @@ export function ConfigurationPanel({
       {/* Channel Filters */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <h3 className="text-sm font-medium text-gray-700 mb-3">Include in Calculations</h3>
-        <div className="space-y-2">
+        <div className="flex flex-wrap gap-4">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="sms-filter"
@@ -117,7 +117,7 @@ export function ConfigurationPanel({
               onCheckedChange={(checked) => handleChannelFilterChange('sms', !!checked)}
             />
             <Label htmlFor="sms-filter" className="text-sm text-gray-600">
-              SMS Messages
+              SMS
             </Label>
           </div>
           <div className="flex items-center space-x-2">
@@ -127,7 +127,7 @@ export function ConfigurationPanel({
               onCheckedChange={(checked) => handleChannelFilterChange('email', !!checked)}
             />
             <Label htmlFor="email-filter" className="text-sm text-gray-600">
-              Email Messages
+              Email
             </Label>
           </div>
           <div className="flex items-center space-x-2">
@@ -137,7 +137,7 @@ export function ConfigurationPanel({
               onCheckedChange={(checked) => handleChannelFilterChange('push', !!checked)}
             />
             <Label htmlFor="push-filter" className="text-sm text-gray-600">
-              Push Messages
+              Push
             </Label>
           </div>
         </div>
