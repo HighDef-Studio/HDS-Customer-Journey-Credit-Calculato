@@ -21,10 +21,10 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
 
   const toggleStageExpansion = (stageId: string) => {
     setExpandedStages(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(stageId)) {
-        newSet.delete(stageId);
-      } else {
+      const newSet = new Set();
+      // If clicking the same stage that's already expanded, collapse it
+      // Otherwise, expand only the clicked stage (collapsing all others)
+      if (!prev.has(stageId)) {
         newSet.add(stageId);
       }
       return newSet;
