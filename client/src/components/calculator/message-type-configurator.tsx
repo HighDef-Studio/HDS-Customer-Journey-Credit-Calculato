@@ -52,7 +52,7 @@ export function MessageTypeConfigurator({
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
       <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
         <List className="text-primary-500 h-5 w-5 mr-2" />
         Message Type Configuration

@@ -32,7 +32,7 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
   };
 
   return (
-    <div className="p-6 border-b border-gray-200">
+    <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
       <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
         <Route className="text-primary-500 h-5 w-5 mr-2" />
         Journey Stage Selection

@@ -335,10 +335,10 @@ export default function Calculator() {
   const totals = getTotalCredits();
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen w-full">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <CalculatorIcon className="text-primary-500 h-8 w-8 mr-3" />
@@ -372,10 +372,10 @@ export default function Calculator() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="min-h-screen px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-full">
           {/* Column 1: Credit Configuration */}
-          <div className="lg:col-span-1">
+          <div className="xl:col-span-1">
             <ConfigurationPanel
               creditRates={creditRates}
               onCreditRatesChange={setCreditRates}
@@ -384,8 +384,8 @@ export default function Calculator() {
           </div>
 
           {/* Column 2: Journey Stage Selection */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="xl:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
               <JourneyStageSelector
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
@@ -395,8 +395,8 @@ export default function Calculator() {
           </div>
 
           {/* Column 3: Message Type Configuration */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="xl:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
               <MessageTypeConfigurator
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
