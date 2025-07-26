@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Route, ChevronDown, ChevronUp } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -11,10 +11,23 @@ interface JourneyStageSelectorProps {
   messageTypes: MessageType[];
   onMessageTypeToggle: (messageTypeId: string) => void;
   onExpandedStagesChange: (expandedStages: Set<string>) => void;
+  expandedStages?: Set<string>;
 }
 
-export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle, onExpandedStagesChange }: JourneyStageSelectorProps) {
+export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle, onExpandedStagesChange, expandedStages: parentExpandedStages }: JourneyStageSelectorProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+
+  // Sync with parent when parent resets
+  useEffect(() => {
+    if (parentExpandedStages && parentExpandedStages.size === 0 && expandedStages.size > 0) {
+      setExpandedStages(new Set());
+    }
+  }, [parentExpandedStages, expandedStages.size]);
+
+  // Notify parent of expanded stages changes
+  useEffect(() => {
+    onExpandedStagesChange(expandedStages);
+  }, [expandedStages, onExpandedStagesChange]);
 
   const getStageMessageCount = (stageId: string) => {
     return messageTypes.filter(mt => mt.journeyStageId === stageId && mt.selected).length;
@@ -28,7 +41,6 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
       if (!prev.has(stageId)) {
         newSet.add(stageId);
       }
-      onExpandedStagesChange(newSet);
       return newSet;
     });
   };

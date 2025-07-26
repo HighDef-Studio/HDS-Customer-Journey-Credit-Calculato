@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown } from 'lucide-react';
+import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ConfigurationPanel } from '@/components/calculator/configuration-panel';
@@ -330,7 +330,18 @@ export default function Calculator() {
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
     setJourneyStages(prev => prev.map(stage => ({ ...stage, selected: false })));
-    setMessageTypes([]);
+    setExpandedStages(new Set());
+    // Reset message types to unselected but keep them initialized
+    setMessageTypes(prev => prev.map(mt => ({ 
+      ...mt, 
+      selected: false,
+      frequency: 'monthly',
+      channels: {
+        sms: { enabled: false, audienceSize: 0 },
+        email: { enabled: false, audienceSize: 0 },
+        push: { enabled: false, audienceSize: 0 }
+      }
+    })));
   };
 
   const totals = getTotalCredits();
@@ -346,6 +357,10 @@ export default function Calculator() {
               <h1 className="text-xl font-semibold text-gray-900">Credit Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="sm" onClick={handleReset}>
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
               <Button variant="ghost" size="sm">
                 <HelpCircle className="h-4 w-4" />
               </Button>
@@ -392,6 +407,7 @@ export default function Calculator() {
                 messageTypes={messageTypes}
                 onMessageTypeToggle={handleMessageTypeToggle}
                 onExpandedStagesChange={setExpandedStages}
+                expandedStages={expandedStages}
               />
             </div>
           </div>
