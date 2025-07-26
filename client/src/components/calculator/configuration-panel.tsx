@@ -179,7 +179,7 @@ export function ConfigurationPanel({
         </div>
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-700">
-            All calculations are shown as monthly totals based on typical billing cycles
+            Calculations above are shown as monthly totals based on typical billing cycles. Please visit this page on desktop if you are experiencing usability issues.
           </p>
         </div>
       </div>

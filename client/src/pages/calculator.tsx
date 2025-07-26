@@ -493,7 +493,6 @@ export default function Calculator() {
                     <p>2. Select journey stages and message types</p>
                     <p>3. Configure audience sizes for each channel</p>
                     <p>4. Use checkboxes to filter specific channels</p>
-                    <p>5. Export templates or reports as needed</p>
                   </div>
                   <div className="absolute top-[-6px] right-4 w-3 h-3 bg-gray-900 rotate-45"></div>
                 </div>
