@@ -337,6 +337,62 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportBlankTemplate = () => {
+    // Create a blank template CSV that users can fill out
+    const csvRows = [];
+    
+    // Header
+    csvRows.push(['Credit Calculator Template - Fill out and import']);
+    csvRows.push(['Instructions: Enter your rates and audience sizes, then import this file']);
+    csvRows.push(['']);
+    
+    // Credit rates section with defaults
+    csvRows.push(['CREDIT_RATES']);
+    csvRows.push(['Channel', 'Rate']);
+    csvRows.push(['SMS', '1.00']);
+    csvRows.push(['Email', '0.10']);
+    csvRows.push(['Push', '0.05']);
+    csvRows.push(['']);
+    
+    // All available message types as blank template
+    csvRows.push(['MESSAGE_CONFIGURATIONS']);
+    csvRows.push(['JourneyStageId', 'MessageType', 'Frequency', 'Selected', 'SMS_Audience', 'Email_Audience', 'Push_Audience']);
+    csvRows.push(['Instructions:', 'Set Selected to "true" for messages you want to use', 'Options: daily/weekly/monthly/quarterly', 'true or false', 'Enter number', 'Enter number', 'Enter number']);
+    csvRows.push(['']);
+    
+    // Add all possible message types from journey data
+    journeyStageData.forEach(stage => {
+      stage.messageTypes.forEach(messageType => {
+        csvRows.push([
+          stage.id,
+          messageType,
+          'monthly', // default frequency
+          'false', // default not selected
+          '0', // default audience sizes
+          '0',
+          '0'
+        ]);
+      });
+    });
+    
+    // Convert to CSV
+    const csvContent = csvRows.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        return cellStr.includes(',') || cellStr.includes('"') ? `"${cellStr.replace(/"/g, '""')}"` : cellStr;
+      }).join(',')
+    ).join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `credit-calculator-template-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleImportTemplate = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -364,6 +420,16 @@ export default function Calculator() {
           } else if (cells[0] === 'MESSAGE_CONFIGURATIONS') {
             currentSection = 'MESSAGE_CONFIGURATIONS';
             i++; // Skip header row
+            // Skip instruction rows if they exist
+            while (i + 1 < lines.length) {
+              const nextLine = lines[i + 1];
+              const nextCells = nextLine.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+              if (nextCells[0] === 'Instructions:' || nextCells[0] === '' || nextLine.trim() === '') {
+                i++;
+              } else {
+                break;
+              }
+            }
             continue;
           }
           
@@ -374,6 +440,9 @@ export default function Calculator() {
             else if (channel.toLowerCase() === 'push') newCreditRates.push = parseFloat(rate);
           } else if (currentSection === 'MESSAGE_CONFIGURATIONS' && cells.length >= 7) {
             const [stageId, messageType, frequency, selected, smsAudience, emailAudience, pushAudience] = cells;
+            
+            // Skip instruction or empty rows
+            if (stageId === 'Instructions:' || stageId === '' || !stageId) continue;
             
             const existingMt = newMessageTypes.find(mt => 
               mt.journeyStageId === stageId && mt.type === messageType
@@ -458,9 +527,13 @@ export default function Calculator() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportBlankTemplate}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Blank Template (CSV)
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportTemplate}>
                     <Download className="h-4 w-4 mr-2" />
-                    Configuration (CSV)
+                    Current Configuration (CSV)
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportExcel}>
                     <Download className="h-4 w-4 mr-2" />
