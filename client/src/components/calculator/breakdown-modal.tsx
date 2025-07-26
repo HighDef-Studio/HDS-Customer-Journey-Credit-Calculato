@@ -78,7 +78,9 @@ export function BreakdownModal({
                           <tr key={messageType.id}>
                             <td className="px-4 py-2 text-gray-900">{messageType.type}</td>
                             <td className="px-4 py-2 text-right text-gray-700">
-                              {messageType.audienceSize.toLocaleString()}
+                              SMS: {messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize.toLocaleString() : 'N/A'}<br/>
+                              Email: {messageType.channels.email.enabled ? messageType.channels.email.audienceSize.toLocaleString() : 'N/A'}<br/>
+                              Push: {messageType.channels.push.enabled ? messageType.channels.push.audienceSize.toLocaleString() : 'N/A'}
                             </td>
                             <td className="px-4 py-2 text-right text-gray-700 capitalize">
                               {messageType.frequency.replace('-', ' ')}

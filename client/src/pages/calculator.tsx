@@ -35,9 +35,9 @@ export default function Calculator() {
     }[messageType.frequency];
 
     return {
-      sms: messageType.channels.sms ? messageType.audienceSize * creditRates.sms * frequencyMultiplier : 0,
-      email: messageType.channels.email ? messageType.audienceSize * creditRates.email * frequencyMultiplier : 0,
-      push: messageType.channels.push ? messageType.audienceSize * creditRates.push * frequencyMultiplier : 0,
+      sms: messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize * creditRates.sms * frequencyMultiplier : 0,
+      email: messageType.channels.email.enabled ? messageType.channels.email.audienceSize * creditRates.email * frequencyMultiplier : 0,
+      push: messageType.channels.push.enabled ? messageType.channels.push.audienceSize * creditRates.push * frequencyMultiplier : 0,
     };
   };
 
@@ -78,9 +78,12 @@ export default function Calculator() {
       id: `${stageId}-${Date.now()}`,
       journeyStageId: stageId,
       type: stage.messageTypes[0],
-      audienceSize: 1000,
       frequency: 'one-time',
-      channels: { sms: false, email: false, push: false },
+      channels: { 
+        sms: { enabled: false, audienceSize: 0 },
+        email: { enabled: false, audienceSize: 0 },
+        push: { enabled: false, audienceSize: 0 }
+      },
       credits: { sms: 0, email: 0, push: 0 }
     };
 
