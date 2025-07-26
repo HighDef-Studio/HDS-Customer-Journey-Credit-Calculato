@@ -12,31 +12,22 @@ interface MessageTypeConfiguratorProps {
   messageTypes: MessageType[];
   onUpdateMessageType: (id: string, updates: Partial<MessageType>) => void;
   calculateCredits: (messageType: MessageType) => MessageType['credits'];
+  expandedStages: Set<string>;
 }
 
 export function MessageTypeConfigurator({
   journeyStages,
   messageTypes,
   onUpdateMessageType,
-  calculateCredits
+  calculateCredits,
+  expandedStages
 }: MessageTypeConfiguratorProps) {
-  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  // Filter to show only selected message types from expanded stages
+  const visibleMessageTypes = messageTypes.filter(mt => 
+    mt.selected && expandedStages.has(mt.journeyStageId)
+  );
 
-  const toggleStageExpansion = (stageId: string) => {
-    setExpandedStages(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(stageId)) {
-        newSet.delete(stageId);
-      } else {
-        newSet.add(stageId);
-      }
-      return newSet;
-    });
-  };
-
-  const selectedMessageTypes = messageTypes.filter(mt => mt.selected);
-
-  if (selectedMessageTypes.length === 0) {
+  if (visibleMessageTypes.length === 0) {
     return (
       <div className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -58,7 +49,7 @@ export function MessageTypeConfigurator({
       </h3>
 
       <div className="space-y-4">
-        {selectedMessageTypes.map((messageType) => {
+        {visibleMessageTypes.map((messageType) => {
           const credits = calculateCredits(messageType);
           const stage = journeyStages.find(s => s.id === messageType.journeyStageId);
           

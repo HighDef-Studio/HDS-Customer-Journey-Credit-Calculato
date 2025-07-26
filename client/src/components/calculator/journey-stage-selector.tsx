@@ -10,9 +10,10 @@ interface JourneyStageSelectorProps {
   journeyStages: JourneyStage[];
   messageTypes: MessageType[];
   onMessageTypeToggle: (messageTypeId: string) => void;
+  onExpandedStagesChange: (expandedStages: Set<string>) => void;
 }
 
-export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle }: JourneyStageSelectorProps) {
+export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle, onExpandedStagesChange }: JourneyStageSelectorProps) {
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
   const getStageMessageCount = (stageId: string) => {
@@ -21,12 +22,13 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
 
   const toggleStageExpansion = (stageId: string) => {
     setExpandedStages(prev => {
-      const newSet = new Set();
+      const newSet = new Set<string>();
       // If clicking the same stage that's already expanded, collapse it
       // Otherwise, expand only the clicked stage (collapsing all others)
       if (!prev.has(stageId)) {
         newSet.add(stageId);
       }
+      onExpandedStagesChange(newSet);
       return newSet;
     });
   };

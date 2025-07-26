@@ -46,6 +46,7 @@ export default function Calculator() {
     return allMessageTypes;
   });
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
+  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
   const calculateCredits = (messageType: MessageType): MessageType['credits'] => {
     // Calculate monthly multipliers for billing
@@ -390,6 +391,7 @@ export default function Calculator() {
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
                 onMessageTypeToggle={handleMessageTypeToggle}
+                onExpandedStagesChange={setExpandedStages}
               />
             </div>
           </div>
@@ -402,6 +404,7 @@ export default function Calculator() {
                 messageTypes={messageTypes}
                 onUpdateMessageType={handleUpdateMessageType}
                 calculateCredits={calculateCredits}
+                expandedStages={expandedStages}
               />
             </div>
           </div>
