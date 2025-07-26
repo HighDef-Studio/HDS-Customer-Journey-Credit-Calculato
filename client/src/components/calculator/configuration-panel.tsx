@@ -173,7 +173,7 @@ export function ConfigurationPanel({
           <div className="pt-2">
             <div className="flex justify-between items-center">
               <span className="font-medium text-gray-900">Total Annual</span>
-              <span className="text-lg font-bold text-green-600">{Math.round(totals.grand * 12).toLocaleString()}</span>
+              <span className="text-lg font-bold text-accent-500">{Math.round(totals.grand * 12).toLocaleString()}</span>
             </div>
           </div>
         </div>
