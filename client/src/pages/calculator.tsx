@@ -373,8 +373,8 @@ export default function Calculator() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Configuration Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Column 1: Credit Configuration */}
           <div className="lg:col-span-1">
             <ConfigurationPanel
               creditRates={creditRates}
@@ -383,52 +383,55 @@ export default function Calculator() {
             />
           </div>
 
-          {/* Main Calculator */}
-          <div className="lg:col-span-2">
+          {/* Column 2: Journey Stage Selection */}
+          <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-              {/* Journey Stage Selection */}
               <JourneyStageSelector
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
                 onMessageTypeToggle={handleMessageTypeToggle}
               />
+            </div>
+          </div>
 
-              {/* Message Type Configuration */}
+          {/* Column 3: Message Type Configuration */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <MessageTypeConfigurator
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
                 onUpdateMessageType={handleUpdateMessageType}
                 calculateCredits={calculateCredits}
               />
+            </div>
+          </div>
+        </div>
 
-              {/* Action Buttons */}
-              <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                <div className="flex flex-col sm:flex-row gap-3 justify-between">
-                  <div className="flex gap-3">
-                    <Button variant="outline" onClick={handleReset}>
-                      Reset
-                    </Button>
-                    <Button variant="outline" onClick={handleSaveTemplate}>
-                      Save Template
-                    </Button>
-                    <Button variant="outline" onClick={handleLoadTemplate}>
-                      Load Template
-                    </Button>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button 
-                      variant="outline" 
-                      className="text-primary-600 bg-primary-50 border-primary-200 hover:bg-primary-100"
-                      onClick={() => setIsBreakdownModalOpen(true)}
-                    >
-                      Preview Breakdown
-                    </Button>
-                    <Button className="bg-primary-500 hover:bg-primary-600">
-                      Generate Report
-                    </Button>
-                  </div>
-                </div>
-              </div>
+        {/* Action Buttons Row */}
+        <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col sm:flex-row gap-3 justify-between">
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={handleReset}>
+                Reset
+              </Button>
+              <Button variant="outline" onClick={handleSaveTemplate}>
+                Save Template
+              </Button>
+              <Button variant="outline" onClick={handleLoadTemplate}>
+                Load Template
+              </Button>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                className="text-primary-600 bg-primary-50 border-primary-200 hover:bg-primary-100"
+                onClick={() => setIsBreakdownModalOpen(true)}
+              >
+                Preview Breakdown
+              </Button>
+              <Button className="bg-primary-500 hover:bg-primary-600">
+                Generate Report
+              </Button>
             </div>
           </div>
         </div>
