@@ -569,7 +569,10 @@ export default function Calculator() {
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <CalculatorIcon className="text-primary-500 h-8 w-8 mr-3" />
+              <div className="flex items-center mr-8">
+                <span className="text-2xl font-light text-gray-700 tracking-wide">highdef</span>
+              </div>
+              <div className="h-6 w-px bg-gray-300 mr-6"></div>
               <h1 className="text-xl font-semibold text-gray-900">Credit Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
