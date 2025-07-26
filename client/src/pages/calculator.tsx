@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw } from 'lucide-react';
+import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ConfigurationPanel } from '@/components/calculator/configuration-panel';
@@ -281,49 +281,131 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
-  const handleSaveTemplate = () => {
-    const templateName = prompt('Enter a name for this template:');
-    if (!templateName) return;
+  const handleExportTemplate = () => {
+    const configName = prompt('Enter a name for this configuration:') || 'credit-calculator-config';
     
-    const template = {
-      name: templateName,
-      creditRates,
-      journeyStages,
-      messageTypes,
-      createdAt: new Date().toISOString()
-    };
+    // Create a configuration CSV
+    const csvRows = [];
     
-    // Save to localStorage
-    const savedTemplates = JSON.parse(localStorage.getItem('creditCalculatorTemplates') || '[]');
-    savedTemplates.push(template);
-    localStorage.setItem('creditCalculatorTemplates', JSON.stringify(savedTemplates));
+    // Header
+    csvRows.push(['Credit Calculator Configuration Export']);
+    csvRows.push(['Name:', configName]);
+    csvRows.push(['Created:', new Date().toISOString()]);
+    csvRows.push(['']);
     
-    alert(`Template "${templateName}" saved successfully!`);
+    // Credit rates section
+    csvRows.push(['CREDIT_RATES']);
+    csvRows.push(['Channel', 'Rate']);
+    csvRows.push(['SMS', creditRates.sms]);
+    csvRows.push(['Email', creditRates.email]);
+    csvRows.push(['Push', creditRates.push]);
+    csvRows.push(['']);
+    
+    // Message types configuration
+    csvRows.push(['MESSAGE_CONFIGURATIONS']);
+    csvRows.push(['JourneyStageId', 'MessageType', 'Frequency', 'Selected', 'SMS_Audience', 'Email_Audience', 'Push_Audience']);
+    
+    messageTypes.forEach(mt => {
+      if (mt.selected) {
+        csvRows.push([
+          mt.journeyStageId,
+          mt.type,
+          mt.frequency,
+          mt.selected ? 'true' : 'false',
+          mt.channels.sms.audienceSize,
+          mt.channels.email.audienceSize,
+          mt.channels.push.audienceSize
+        ]);
+      }
+    });
+    
+    // Convert to CSV
+    const csvContent = csvRows.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        return cellStr.includes(',') || cellStr.includes('"') ? `"${cellStr.replace(/"/g, '""')}"` : cellStr;
+      }).join(',')
+    ).join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${configName.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleLoadTemplate = () => {
-    const savedTemplates = JSON.parse(localStorage.getItem('creditCalculatorTemplates') || '[]');
-    
-    if (savedTemplates.length === 0) {
-      alert('No saved templates found.');
-      return;
-    }
-    
-    const templateNames = savedTemplates.map((t: any, i: number) => `${i + 1}. ${t.name} (${new Date(t.createdAt).toLocaleDateString()})`);
-    const selection = prompt(`Select a template to load:\n${templateNames.join('\n')}\n\nEnter the number:`);
-    
-    if (!selection) return;
-    
-    const index = parseInt(selection) - 1;
-    if (index >= 0 && index < savedTemplates.length) {
-      const template = savedTemplates[index];
-      setCreditRates(template.creditRates);
-      setJourneyStages(template.journeyStages);
-      setMessageTypes(template.messageTypes);
-      alert(`Template "${template.name}" loaded successfully!`);
-    } else {
-      alert('Invalid selection.');
-    }
+  const handleImportTemplate = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const text = await file.text();
+      const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+      
+      try {
+        let currentSection = '';
+        const newCreditRates = { ...creditRates };
+        const newMessageTypes = [...messageTypes];
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const cells = line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+          
+          if (cells[0] === 'CREDIT_RATES') {
+            currentSection = 'CREDIT_RATES';
+            i++; // Skip header row
+            continue;
+          } else if (cells[0] === 'MESSAGE_CONFIGURATIONS') {
+            currentSection = 'MESSAGE_CONFIGURATIONS';
+            i++; // Skip header row
+            continue;
+          }
+          
+          if (currentSection === 'CREDIT_RATES' && cells.length >= 2) {
+            const [channel, rate] = cells;
+            if (channel.toLowerCase() === 'sms') newCreditRates.sms = parseFloat(rate);
+            else if (channel.toLowerCase() === 'email') newCreditRates.email = parseFloat(rate);
+            else if (channel.toLowerCase() === 'push') newCreditRates.push = parseFloat(rate);
+          } else if (currentSection === 'MESSAGE_CONFIGURATIONS' && cells.length >= 7) {
+            const [stageId, messageType, frequency, selected, smsAudience, emailAudience, pushAudience] = cells;
+            
+            const existingMt = newMessageTypes.find(mt => 
+              mt.journeyStageId === stageId && mt.type === messageType
+            );
+            
+            if (existingMt) {
+              existingMt.frequency = frequency as any;
+              existingMt.selected = selected === 'true';
+              existingMt.channels.sms.audienceSize = parseInt(smsAudience) || 0;
+              existingMt.channels.email.audienceSize = parseInt(emailAudience) || 0;
+              existingMt.channels.push.audienceSize = parseInt(pushAudience) || 0;
+            }
+          }
+        }
+        
+        // Update state
+        setCreditRates(newCreditRates);
+        setMessageTypes(newMessageTypes);
+        
+        // Update journey stages based on imported message types
+        setJourneyStages(prev => prev.map(stage => ({
+          ...stage,
+          selected: newMessageTypes.some(mt => mt.journeyStageId === stage.id && mt.selected)
+        })));
+        
+        alert('Configuration imported successfully!');
+      } catch (error) {
+        alert('Error importing configuration. Please check the file format.');
+        console.error('Import error:', error);
+      }
+    };
+    input.click();
   };
 
   const handleReset = () => {
@@ -360,6 +442,10 @@ export default function Calculator() {
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
+              <Button variant="ghost" size="sm" onClick={handleImportTemplate}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import CSV
+              </Button>
               <Button variant="ghost" size="sm">
                 <HelpCircle className="h-4 w-4" />
               </Button>
@@ -372,13 +458,17 @@ export default function Calculator() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportTemplate}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Configuration (CSV)
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportExcel}>
                     <Download className="h-4 w-4 mr-2" />
-                    Detailed Spreadsheet (CSV)
+                    Detailed Report (CSV)
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExport}>
                     <Download className="h-4 w-4 mr-2" />
-                    Simple Export (CSV)
+                    Simple Report (CSV)
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -425,34 +515,7 @@ export default function Calculator() {
           </div>
         </div>
 
-        {/* Action Buttons Row */}
-        <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex flex-col sm:flex-row gap-3 justify-between">
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={handleReset}>
-                Reset
-              </Button>
-              <Button variant="outline" onClick={handleSaveTemplate}>
-                Save Template
-              </Button>
-              <Button variant="outline" onClick={handleLoadTemplate}>
-                Load Template
-              </Button>
-            </div>
-            <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                className="text-primary-600 bg-primary-50 border-primary-200 hover:bg-primary-100"
-                onClick={() => setIsBreakdownModalOpen(true)}
-              >
-                Preview Breakdown
-              </Button>
-              <Button className="bg-primary-500 hover:bg-primary-600">
-                Generate Report
-              </Button>
-            </div>
-          </div>
-        </div>
+
       </main>
 
       {/* Breakdown Modal */}
