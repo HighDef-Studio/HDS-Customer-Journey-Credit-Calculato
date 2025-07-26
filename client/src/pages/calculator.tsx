@@ -570,10 +570,11 @@ export default function Calculator() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex items-center mr-8">
+                <img src="/attached_assets/Favicon Filled - Red Ivory Outlined_1753514579909.png" alt="HighDef Logo" className="h-10 w-10 mr-3" />
                 <span className="text-2xl font-light text-gray-700 tracking-wide">highdef</span>
               </div>
               <div className="h-6 w-px bg-gray-300 mr-6"></div>
-              <h1 className="text-xl font-semibold text-gray-900">Credit Calculator</h1>
+              <h1 className="text-xl font-bold text-gray-900">Customer Journey Credit Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" size="sm" onClick={handleReset}>
