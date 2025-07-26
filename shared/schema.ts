@@ -30,7 +30,7 @@ export const messageTypeSchema = z.object({
   id: z.string(),
   journeyStageId: z.string(),
   type: z.string(),
-  frequency: z.enum(['one-time', 'daily', 'weekly', 'monthly', 'quarterly']),
+  frequency: z.enum(['daily', 'weekly', 'monthly', 'quarterly']),
   selected: z.boolean().default(false),
   channels: z.object({
     sms: z.object({
