@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Route, ChevronDown, ChevronUp } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -10,39 +9,24 @@ interface JourneyStageSelectorProps {
   journeyStages: JourneyStage[];
   messageTypes: MessageType[];
   onMessageTypeToggle: (messageTypeId: string) => void;
+  expandedStages: Set<string>;
   onExpandedStagesChange: (expandedStages: Set<string>) => void;
-  expandedStages?: Set<string>;
 }
 
-export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle, onExpandedStagesChange, expandedStages: parentExpandedStages }: JourneyStageSelectorProps) {
-  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
-
-  // Sync with parent when parent resets
-  useEffect(() => {
-    if (parentExpandedStages && parentExpandedStages.size === 0 && expandedStages.size > 0) {
-      setExpandedStages(new Set());
-    }
-  }, [parentExpandedStages, expandedStages.size]);
-
-  // Notify parent of expanded stages changes
-  useEffect(() => {
-    onExpandedStagesChange(expandedStages);
-  }, [expandedStages, onExpandedStagesChange]);
+export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTypeToggle, expandedStages, onExpandedStagesChange }: JourneyStageSelectorProps) {
 
   const getStageMessageCount = (stageId: string) => {
     return messageTypes.filter(mt => mt.journeyStageId === stageId && mt.selected).length;
   };
 
   const toggleStageExpansion = (stageId: string) => {
-    setExpandedStages(prev => {
-      const newSet = new Set<string>();
-      // If clicking the same stage that's already expanded, collapse it
-      // Otherwise, expand only the clicked stage (collapsing all others)
-      if (!prev.has(stageId)) {
-        newSet.add(stageId);
-      }
-      return newSet;
-    });
+    const newSet = new Set<string>();
+    // If clicking the same stage that's already expanded, collapse it
+    // Otherwise, expand only the clicked stage (collapsing all others)
+    if (!expandedStages.has(stageId)) {
+      newSet.add(stageId);
+    }
+    onExpandedStagesChange(newSet);
   };
 
   return (
