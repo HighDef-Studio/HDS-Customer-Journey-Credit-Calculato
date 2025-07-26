@@ -47,6 +47,12 @@ export default function Calculator() {
   });
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [channelFilters, setChannelFilters] = useState({
+    sms: true,
+    email: true,
+    push: true
+  });
 
   const calculateCredits = (messageType: MessageType): MessageType['credits'] => {
     // Calculate monthly multipliers for billing
@@ -58,9 +64,9 @@ export default function Calculator() {
     }[messageType.frequency];
 
     return {
-      sms: messageType.channels.sms.audienceSize > 0 ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
-      email: messageType.channels.email.audienceSize > 0 ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
-      push: messageType.channels.push.audienceSize > 0 ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
+      sms: (messageType.channels.sms.audienceSize > 0 && channelFilters.sms) ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
+      email: (messageType.channels.email.audienceSize > 0 && channelFilters.email) ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
+      push: (messageType.channels.push.audienceSize > 0 && channelFilters.push) ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
     };
   };
 
@@ -567,7 +573,7 @@ export default function Calculator() {
               <h1 className="text-xl font-semibold text-gray-900">Credit Calculator</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" onClick={handleReset}>
+              <Button variant="ghost" size="sm" onClick={() => setIsResetModalOpen(true)}>
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
