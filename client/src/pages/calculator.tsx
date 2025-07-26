@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Calculator as CalculatorIcon, Download, HelpCircle } from 'lucide-react';
+import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ConfigurationPanel } from '@/components/calculator/configuration-panel';
 import { JourneyStageSelector } from '@/components/calculator/journey-stage-selector';
 import { MessageTypeConfigurator } from '@/components/calculator/message-type-configurator';
@@ -107,19 +108,171 @@ export default function Calculator() {
   };
 
   const handleExport = () => {
-    const data = {
-      creditRates,
-      journeyStages,
-      messageTypes,
-      totals: getTotalCredits(),
-      timestamp: new Date().toISOString()
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const totals = getTotalCredits();
+    const selectedStages = journeyStages.filter(stage => stage.selected);
+    
+    // Create CSV content
+    const csvRows = [];
+    
+    // Header information
+    csvRows.push(['Credit Calculator Export']);
+    csvRows.push(['Generated:', new Date().toLocaleString()]);
+    csvRows.push(['']);
+    
+    // Credit rates
+    csvRows.push(['Credit Rates']);
+    csvRows.push(['Channel', 'Credits per Message']);
+    csvRows.push(['SMS', creditRates.sms]);
+    csvRows.push(['Email', creditRates.email]);
+    csvRows.push(['Push', creditRates.push]);
+    csvRows.push(['']);
+    
+    // Monthly totals summary
+    csvRows.push(['Monthly Credit Totals Summary']);
+    csvRows.push(['Channel', 'Monthly Credits']);
+    csvRows.push(['SMS', Math.round(totals.sms)]);
+    csvRows.push(['Email', Math.round(totals.email)]);
+    csvRows.push(['Push', Math.round(totals.push)]);
+    csvRows.push(['Total Monthly Credits', Math.round(totals.grand)]);
+    csvRows.push(['']);
+    
+    // Detailed breakdown by stage
+    csvRows.push(['Detailed Breakdown by Journey Stage']);
+    csvRows.push(['']);
+    
+    selectedStages.forEach((stage) => {
+      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
+      
+      if (stageMessageTypes.length > 0) {
+        csvRows.push([stage.name]);
+        csvRows.push(['Message Type', 'Frequency', 'SMS Audience', 'Email Audience', 'Push Audience', 
+                     'SMS Credits/Month', 'Email Credits/Month', 'Push Credits/Month', 'Total Monthly Credits']);
+        
+        let stageTotal = 0;
+        
+        stageMessageTypes.forEach((messageType) => {
+          const credits = calculateCredits(messageType);
+          const messageTotal = credits.sms + credits.email + credits.push;
+          stageTotal += messageTotal;
+          
+          csvRows.push([
+            messageType.type,
+            messageType.frequency,
+            messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize : 'N/A',
+            messageType.channels.email.enabled ? messageType.channels.email.audienceSize : 'N/A',
+            messageType.channels.push.enabled ? messageType.channels.push.audienceSize : 'N/A',
+            Math.round(credits.sms),
+            Math.round(credits.email),
+            Math.round(credits.push),
+            Math.round(messageTotal)
+          ]);
+        });
+        
+        csvRows.push(['', '', '', '', '', '', '', 'Stage Total:', Math.round(stageTotal)]);
+        csvRows.push(['']);
+      }
+    });
+    
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => 
+      row.map(cell => 
+        typeof cell === 'string' && cell.includes(',') 
+          ? `"${cell}"` 
+          : cell
+      ).join(',')
+    ).join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `credit-calculation-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `credit-calculation-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportExcel = () => {
+    const totals = getTotalCredits();
+    const selectedStages = journeyStages.filter(stage => stage.selected);
+    
+    // Create Excel-friendly CSV with better formatting
+    const csvRows = [];
+    
+    // Main summary section
+    csvRows.push(['MONTHLY CREDIT CALCULATION SUMMARY']);
+    csvRows.push(['Generated', new Date().toLocaleString()]);
+    csvRows.push(['']);
+    
+    // Executive summary table
+    csvRows.push(['EXECUTIVE SUMMARY']);
+    csvRows.push(['Total Monthly SMS Credits', Math.round(totals.sms)]);
+    csvRows.push(['Total Monthly Email Credits', Math.round(totals.email)]);
+    csvRows.push(['Total Monthly Push Credits', Math.round(totals.push)]);
+    csvRows.push(['TOTAL MONTHLY CREDITS REQUIRED', Math.round(totals.grand)]);
+    csvRows.push(['']);
+    
+    // Credit rates reference
+    csvRows.push(['CREDIT RATES (per message)']);
+    csvRows.push(['SMS Rate', creditRates.sms]);
+    csvRows.push(['Email Rate', creditRates.email]);
+    csvRows.push(['Push Rate', creditRates.push]);
+    csvRows.push(['']);
+    
+    // Detailed breakdown table
+    csvRows.push(['DETAILED BREAKDOWN BY JOURNEY STAGE AND MESSAGE TYPE']);
+    csvRows.push(['Journey Stage', 'Message Type', 'Frequency', 'SMS Audience', 'Email Audience', 'Push Audience', 
+                 'SMS Monthly Credits', 'Email Monthly Credits', 'Push Monthly Credits', 'Total Monthly Credits']);
+    
+    selectedStages.forEach((stage) => {
+      const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
+      
+      if (stageMessageTypes.length > 0) {
+        let isFirstRow = true;
+        let stageTotal = 0;
+        
+        stageMessageTypes.forEach((messageType) => {
+          const credits = calculateCredits(messageType);
+          const messageTotal = credits.sms + credits.email + credits.push;
+          stageTotal += messageTotal;
+          
+          csvRows.push([
+            isFirstRow ? stage.name : '',
+            messageType.type,
+            messageType.frequency,
+            messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize : '',
+            messageType.channels.email.enabled ? messageType.channels.email.audienceSize : '',
+            messageType.channels.push.enabled ? messageType.channels.push.audienceSize : '',
+            messageType.channels.sms.enabled ? Math.round(credits.sms) : '',
+            messageType.channels.email.enabled ? Math.round(credits.email) : '',
+            messageType.channels.push.enabled ? Math.round(credits.push) : '',
+            Math.round(messageTotal)
+          ]);
+          isFirstRow = false;
+        });
+        
+        // Stage subtotal
+        csvRows.push(['', '', '', '', '', '', '', '', `${stage.name} Subtotal:`, Math.round(stageTotal)]);
+      }
+    });
+    
+    // Final total
+    csvRows.push(['', '', '', '', '', '', '', '', 'GRAND TOTAL:', Math.round(totals.grand)]);
+    
+    // Convert to CSV
+    const csvContent = csvRows.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        return cellStr.includes(',') || cellStr.includes('"') ? `"${cellStr.replace(/"/g, '""')}"` : cellStr;
+      }).join(',')
+    ).join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `credit-calculation-detailed-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -146,10 +299,25 @@ export default function Calculator() {
               <Button variant="ghost" size="sm">
                 <HelpCircle className="h-4 w-4" />
               </Button>
-              <Button onClick={handleExport} className="bg-primary-500 hover:bg-primary-600">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="bg-primary-500 hover:bg-primary-600">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Detailed Spreadsheet (CSV)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExport}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Simple Export (CSV)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
