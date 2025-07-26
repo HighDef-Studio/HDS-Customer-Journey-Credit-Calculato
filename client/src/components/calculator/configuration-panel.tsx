@@ -117,7 +117,7 @@ export function ConfigurationPanel({ creditRates, onCreditRatesChange, totals }:
         </div>
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-700">
-            All calculations are shown as monthly totals for billing purposes
+            All calculations are shown as monthly totals based on typical billing cycles
           </p>
         </div>
       </div>
