@@ -59,7 +59,6 @@ export function MessageTypeConfigurator({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-3">
                     <h5 className="font-medium text-gray-900">{messageType.type}</h5>
-                    <span className="text-sm text-gray-500">({stage?.name})</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Label className="text-sm text-gray-700">Frequency:</Label>

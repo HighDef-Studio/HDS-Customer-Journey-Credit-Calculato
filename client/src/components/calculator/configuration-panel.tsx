@@ -108,42 +108,44 @@ export function ConfigurationPanel({
 
       {/* Channel Filters */}
       <div className="mt-6 pt-4 border-t border-gray-200">
-        <h3 className="text-sm font-medium text-gray-700 mb-3">Include in Calculations</h3>
-        <div className="flex flex-wrap gap-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="sms-filter"
-              checked={channelFilters.sms}
-              onCheckedChange={(checked) => handleChannelFilterChange('sms', !!checked)}
-            />
-            <Label htmlFor="sms-filter" className="text-sm text-gray-600">
-              SMS
-            </Label>
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">Include in Calculations</h3>
+          <div className="flex justify-between items-center w-full">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="sms-filter"
+                checked={channelFilters.sms}
+                onCheckedChange={(checked) => handleChannelFilterChange('sms', !!checked)}
+              />
+              <Label htmlFor="sms-filter" className="text-sm text-gray-600">
+                SMS
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="email-filter"
+                checked={channelFilters.email}
+                onCheckedChange={(checked) => handleChannelFilterChange('email', !!checked)}
+              />
+              <Label htmlFor="email-filter" className="text-sm text-gray-600">
+                Email
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="push-filter"
+                checked={channelFilters.push}
+                onCheckedChange={(checked) => handleChannelFilterChange('push', !!checked)}
+              />
+              <Label htmlFor="push-filter" className="text-sm text-gray-600">
+                Push
+              </Label>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="email-filter"
-              checked={channelFilters.email}
-              onCheckedChange={(checked) => handleChannelFilterChange('email', !!checked)}
-            />
-            <Label htmlFor="email-filter" className="text-sm text-gray-600">
-              Email
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="push-filter"
-              checked={channelFilters.push}
-              onCheckedChange={(checked) => handleChannelFilterChange('push', !!checked)}
-            />
-            <Label htmlFor="push-filter" className="text-sm text-gray-600">
-              Push
-            </Label>
-          </div>
+          <p className="text-xs text-gray-500 mt-3">
+            Uncheck channels to see calculations for specific message types only
+          </p>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
-          Uncheck channels to see calculations for specific message types only
-        </p>
       </div>
 
       {/* Total Summary */}
