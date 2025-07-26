@@ -69,18 +69,10 @@ export default function Calculator() {
     const stage = journeyStageData.find(s => s.id === stageId);
     if (!stage) return;
 
-    setJourneyStages(prev => 
-      prev.map(s => 
-        s.id === stageId 
-          ? { ...s, selected: !s.selected }
-          : s
-      )
-    );
-
-    const isCurrentlySelected = journeyStages.find(s => s.id === stageId)?.selected;
+    const hasExistingMessageTypes = messageTypes.some(mt => mt.journeyStageId === stageId);
     
-    if (!isCurrentlySelected) {
-      // Stage is being selected - add all message types as checkboxes
+    if (!hasExistingMessageTypes) {
+      // Stage is being activated - add all message types as options
       const newMessageTypes = stage.messageTypes.map(messageType => ({
         id: `${stageId}-${messageType.replace(/[^a-zA-Z0-9]/g, '-')}`,
         journeyStageId: stageId,
@@ -97,9 +89,28 @@ export default function Calculator() {
       
       setMessageTypes(prev => [...prev, ...newMessageTypes]);
     } else {
-      // Stage is being deselected - remove all message types for this stage
+      // Stage is being deactivated - remove all message types for this stage
       setMessageTypes(prev => prev.filter(mt => mt.journeyStageId !== stageId));
     }
+    
+    // Update journey stage selection status based on whether it has message types
+    setJourneyStages(prev => 
+      prev.map(s => 
+        s.id === stageId 
+          ? { ...s, selected: !hasExistingMessageTypes }
+          : s
+      )
+    );
+  };
+
+  const handleMessageTypeToggle = (messageTypeId: string) => {
+    setMessageTypes(prev => 
+      prev.map(mt => 
+        mt.id === messageTypeId 
+          ? { ...mt, selected: !mt.selected }
+          : mt
+      )
+    );
   };
 
   // No longer needed - message types are auto-generated from journey stages
@@ -396,6 +407,7 @@ export default function Calculator() {
                 journeyStages={journeyStages}
                 messageTypes={messageTypes}
                 onStageToggle={handleStageToggle}
+                onMessageTypeToggle={handleMessageTypeToggle}
               />
 
               {/* Message Type Configuration */}

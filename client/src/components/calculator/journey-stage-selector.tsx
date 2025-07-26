@@ -1,28 +1,35 @@
-import { Route } from 'lucide-react';
+import { useState } from 'react';
+import { Route, ChevronDown, ChevronUp } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { type JourneyStage, type MessageType } from '@shared/schema';
+import { journeyStageData } from '@/lib/journey-data';
 
 interface JourneyStageSelectorProps {
   journeyStages: JourneyStage[];
   messageTypes: MessageType[];
   onStageToggle: (stageId: string) => void;
+  onMessageTypeToggle: (messageTypeId: string) => void;
 }
 
-export function JourneyStageSelector({ journeyStages, messageTypes, onStageToggle }: JourneyStageSelectorProps) {
+export function JourneyStageSelector({ journeyStages, messageTypes, onStageToggle, onMessageTypeToggle }: JourneyStageSelectorProps) {
+  const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+
   const getStageMessageCount = (stageId: string) => {
     return messageTypes.filter(mt => mt.journeyStageId === stageId && mt.selected).length;
   };
 
-  const getAvailableMessageTypesCount = (stageId: string) => {
-    const stageData = {
-      'new-member-activation': 8,
-      'habituation-repeat-visits': 8,
-      'churn-risk-reengagement': 6,
-      'high-value-customer-recognition': 7,
-      'evergreen-loyalty-value-add': 7
-    };
-    return stageData[stageId as keyof typeof stageData] || 0;
+  const toggleStageExpansion = (stageId: string) => {
+    setExpandedStages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(stageId)) {
+        newSet.delete(stageId);
+      } else {
+        newSet.add(stageId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -32,40 +39,63 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onStageToggl
         Journey Stage Selection
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-3">
         {journeyStages.map((stage) => {
+          const stageData = journeyStageData.find(s => s.id === stage.id);
+          const stageMessageTypes = messageTypes.filter(mt => mt.journeyStageId === stage.id);
           const selectedCount = getStageMessageCount(stage.id);
-          const availableCount = getAvailableMessageTypesCount(stage.id);
+          const isExpanded = expandedStages.has(stage.id);
           
           return (
-            <div
-              key={stage.id}
-              className={`border rounded-lg p-4 transition-colors cursor-pointer ${
-                stage.selected 
-                  ? 'border-primary-300 bg-primary-50' 
-                  : 'border-gray-200 hover:border-primary-300'
-              }`}
-              onClick={() => onStageToggle(stage.id)}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-gray-900">{stage.name}</h3>
-                <Checkbox
-                  checked={stage.selected}
-                  onChange={() => {}} // Handled by parent onClick
-                  className="h-4 w-4"
-                />
+            <div key={stage.id} className="border border-gray-200 rounded-lg bg-white">
+              {/* Stage Header */}
+              <div 
+                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() => toggleStageExpansion(stage.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
+                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      <h3 className="font-medium text-gray-900">{stage.name}</h3>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    {selectedCount > 0 && (
+                      <Badge variant="secondary" className="bg-primary-100 text-primary-700">
+                        {selectedCount} selected
+                      </Badge>
+                    )}
+                    <span className="text-sm text-gray-500">
+                      {stageData?.messageTypes.length || 0} available
+                    </span>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-gray-600 mb-2">
-                {availableCount} message types available
-              </p>
-              <div className="mt-2">
-                <Badge 
-                  variant={selectedCount > 0 ? "default" : "secondary"}
-                  className={selectedCount > 0 ? "bg-primary-50 text-primary-700" : ""}
-                >
-                  {selectedCount} selected
-                </Badge>
-              </div>
+
+              {/* Message Type Checkboxes */}
+              {isExpanded && stageData && (
+                <div className="border-t border-gray-200 p-4 bg-gray-50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {stageMessageTypes.map((messageType) => (
+                      <div key={messageType.id} className="flex items-center space-x-3 p-2 rounded bg-white">
+                        <Checkbox
+                          checked={messageType.selected}
+                          onCheckedChange={() => onMessageTypeToggle(messageType.id)}
+                          className="h-4 w-4"
+                        />
+                        <Label 
+                          className="text-sm text-gray-900 flex-1 cursor-pointer"
+                          onClick={() => onMessageTypeToggle(messageType.id)}
+                        >
+                          {messageType.type}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
