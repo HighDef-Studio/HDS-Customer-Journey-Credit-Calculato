@@ -284,38 +284,35 @@ export default function Calculator() {
   const handleExportTemplate = () => {
     const configName = prompt('Enter a name for this configuration:') || 'credit-calculator-config';
     
-    // Create a configuration CSV
+    // Create a configuration CSV with current selections
     const csvRows = [];
     
     // Header
-    csvRows.push(['Credit Calculator Configuration Export']);
+    csvRows.push(['Credit Calculator Configuration']);
     csvRows.push(['Name:', configName]);
     csvRows.push(['Created:', new Date().toISOString()]);
     csvRows.push(['']);
     
-    // Credit rates section
-    csvRows.push(['CREDIT_RATES']);
-    csvRows.push(['Channel', 'Rate']);
-    csvRows.push(['SMS', creditRates.sms]);
-    csvRows.push(['Email', creditRates.email]);
-    csvRows.push(['Push', creditRates.push]);
-    csvRows.push(['']);
+    // Message configurations
+    csvRows.push(['Journey Stage', 'Message Type', 'Frequency', 'Use This Message', 'SMS Audience', 'Email Audience', 'Push Audience']);
     
-    // Message types configuration
-    csvRows.push(['MESSAGE_CONFIGURATIONS']);
-    csvRows.push(['JourneyStageId', 'MessageType', 'Frequency', 'Selected', 'SMS_Audience', 'Email_Audience', 'Push_Audience']);
-    
-    messageTypes.forEach(mt => {
-      if (mt.selected) {
-        csvRows.push([
-          mt.journeyStageId,
-          mt.type,
-          mt.frequency,
-          mt.selected ? 'true' : 'false',
-          mt.channels.sms.audienceSize,
-          mt.channels.email.audienceSize,
-          mt.channels.push.audienceSize
-        ]);
+    // Group by journey stage for cleaner export
+    journeyStageData.forEach(stage => {
+      const stageMessages = messageTypes.filter(mt => mt.journeyStageId === stage.id && mt.selected);
+      
+      if (stageMessages.length > 0) {
+        stageMessages.forEach((mt, index) => {
+          csvRows.push([
+            index === 0 ? stage.name : '', // Only show stage name on first message
+            mt.type,
+            mt.frequency,
+            'TRUE',
+            mt.channels.sms.audienceSize || '',
+            mt.channels.email.audienceSize || '',
+            mt.channels.push.audienceSize || ''
+          ]);
+        });
+        csvRows.push(['']); // Empty row between stages
       }
     });
     
@@ -342,37 +339,29 @@ export default function Calculator() {
     const csvRows = [];
     
     // Header
-    csvRows.push(['Credit Calculator Template - Fill out and import']);
-    csvRows.push(['Instructions: Enter your rates and audience sizes, then import this file']);
+    csvRows.push(['Credit Calculator Template']);
+    csvRows.push(['Instructions: Fill out audience sizes and select message types to use']);
     csvRows.push(['']);
     
-    // Credit rates section with defaults
-    csvRows.push(['CREDIT_RATES']);
-    csvRows.push(['Channel', 'Rate']);
-    csvRows.push(['SMS', '1.00']);
-    csvRows.push(['Email', '0.10']);
-    csvRows.push(['Push', '0.05']);
+    // Message configurations only
+    csvRows.push(['Journey Stage', 'Message Type', 'Frequency', 'Use This Message', 'SMS Audience', 'Email Audience', 'Push Audience']);
+    csvRows.push(['Instructions:', 'Leave as-is', 'daily/weekly/monthly/quarterly', 'TRUE or FALSE', 'Enter number', 'Enter number', 'Enter number']);
     csvRows.push(['']);
     
-    // All available message types as blank template
-    csvRows.push(['MESSAGE_CONFIGURATIONS']);
-    csvRows.push(['JourneyStageId', 'MessageType', 'Frequency', 'Selected', 'SMS_Audience', 'Email_Audience', 'Push_Audience']);
-    csvRows.push(['Instructions:', 'Set Selected to "true" for messages you want to use', 'Options: daily/weekly/monthly/quarterly', 'true or false', 'Enter number', 'Enter number', 'Enter number']);
-    csvRows.push(['']);
-    
-    // Add all possible message types from journey data
+    // Add all possible message types grouped by journey stage
     journeyStageData.forEach(stage => {
-      stage.messageTypes.forEach(messageType => {
+      stage.messageTypes.forEach((messageType, index) => {
         csvRows.push([
-          stage.id,
+          index === 0 ? stage.name : '', // Only show stage name on first message type
           messageType,
           'monthly', // default frequency
-          'false', // default not selected
-          '0', // default audience sizes
-          '0',
-          '0'
+          'FALSE', // default not selected
+          '', // empty for user to fill
+          '', 
+          ''
         ]);
       });
+      csvRows.push(['']); // Empty row between stages
     });
     
     // Convert to CSV
@@ -405,61 +394,70 @@ export default function Calculator() {
       const lines = text.split('\n').map(line => line.trim()).filter(line => line);
       
       try {
-        let currentSection = '';
-        const newCreditRates = { ...creditRates };
         const newMessageTypes = [...messageTypes];
+        let isDataSection = false;
         
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           const cells = line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
           
-          if (cells[0] === 'CREDIT_RATES') {
-            currentSection = 'CREDIT_RATES';
-            i++; // Skip header row
-            continue;
-          } else if (cells[0] === 'MESSAGE_CONFIGURATIONS') {
-            currentSection = 'MESSAGE_CONFIGURATIONS';
-            i++; // Skip header row
-            // Skip instruction rows if they exist
-            while (i + 1 < lines.length) {
+          // Look for the header row to start parsing data
+          if (cells.includes('Journey Stage') && cells.includes('Message Type')) {
+            isDataSection = true;
+            // Skip instruction row if it follows
+            if (i + 1 < lines.length) {
               const nextLine = lines[i + 1];
               const nextCells = nextLine.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
-              if (nextCells[0] === 'Instructions:' || nextCells[0] === '' || nextLine.trim() === '') {
-                i++;
-              } else {
-                break;
+              if (nextCells[0] === 'Instructions:') {
+                i++; // Skip instruction row
               }
             }
             continue;
           }
           
-          if (currentSection === 'CREDIT_RATES' && cells.length >= 2) {
-            const [channel, rate] = cells;
-            if (channel.toLowerCase() === 'sms') newCreditRates.sms = parseFloat(rate);
-            else if (channel.toLowerCase() === 'email') newCreditRates.email = parseFloat(rate);
-            else if (channel.toLowerCase() === 'push') newCreditRates.push = parseFloat(rate);
-          } else if (currentSection === 'MESSAGE_CONFIGURATIONS' && cells.length >= 7) {
-            const [stageId, messageType, frequency, selected, smsAudience, emailAudience, pushAudience] = cells;
+          if (isDataSection && cells.length >= 7) {
+            const [stageName, messageType, frequency, useMessage, smsAudience, emailAudience, pushAudience] = cells;
             
-            // Skip instruction or empty rows
-            if (stageId === 'Instructions:' || stageId === '' || !stageId) continue;
+            // Skip empty rows or instruction rows
+            if (!messageType || messageType === '' || stageName === 'Instructions:') continue;
             
-            const existingMt = newMessageTypes.find(mt => 
-              mt.journeyStageId === stageId && mt.type === messageType
-            );
+            // Find the stage by name to get the ID
+            const stage = journeyStageData.find(s => s.name === stageName);
+            let stageId = '';
             
-            if (existingMt) {
-              existingMt.frequency = frequency as any;
-              existingMt.selected = selected === 'true';
-              existingMt.channels.sms.audienceSize = parseInt(smsAudience) || 0;
-              existingMt.channels.email.audienceSize = parseInt(emailAudience) || 0;
-              existingMt.channels.push.audienceSize = parseInt(pushAudience) || 0;
+            if (stage) {
+              stageId = stage.id;
+            } else {
+              // If stage name is empty (continuation of previous stage), find by message type
+              const existingMt = newMessageTypes.find(mt => mt.type === messageType && mt.selected);
+              if (existingMt) {
+                stageId = existingMt.journeyStageId;
+              } else {
+                // Find any message type with this name to get the stage
+                const anyMt = newMessageTypes.find(mt => mt.type === messageType);
+                if (anyMt) {
+                  stageId = anyMt.journeyStageId;
+                }
+              }
+            }
+            
+            if (stageId && messageType) {
+              const existingMt = newMessageTypes.find(mt => 
+                mt.journeyStageId === stageId && mt.type === messageType
+              );
+              
+              if (existingMt) {
+                existingMt.frequency = frequency as any;
+                existingMt.selected = useMessage?.toUpperCase() === 'TRUE';
+                existingMt.channels.sms.audienceSize = parseInt(smsAudience) || 0;
+                existingMt.channels.email.audienceSize = parseInt(emailAudience) || 0;
+                existingMt.channels.push.audienceSize = parseInt(pushAudience) || 0;
+              }
             }
           }
         }
         
         // Update state
-        setCreditRates(newCreditRates);
         setMessageTypes(newMessageTypes);
         
         // Update journey stages based on imported message types
@@ -468,7 +466,10 @@ export default function Calculator() {
           selected: newMessageTypes.some(mt => mt.journeyStageId === stage.id && mt.selected)
         })));
         
-        alert('Configuration imported successfully!');
+        toast({
+          title: "Configuration imported successfully",
+          description: "Your message selections and audience sizes have been loaded from the CSV file.",
+        });
       } catch (error) {
         alert('Error importing configuration. Please check the file format.');
         console.error('Import error:', error);
@@ -529,19 +530,19 @@ export default function Calculator() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleExportBlankTemplate}>
                     <Download className="h-4 w-4 mr-2" />
-                    Blank Template (CSV)
+                    Blank Template for Completion
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportTemplate}>
                     <Download className="h-4 w-4 mr-2" />
-                    Current Configuration (CSV)
+                    Current Message Configuration
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportExcel}>
                     <Download className="h-4 w-4 mr-2" />
-                    Detailed Report (CSV)
+                    Detailed Credit Report
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExport}>
                     <Download className="h-4 w-4 mr-2" />
-                    Simple Report (CSV)
+                    Simple Credit Report
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
