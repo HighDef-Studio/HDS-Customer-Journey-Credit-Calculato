@@ -51,9 +51,10 @@ Preferred communication style: Simple, everyday language.
 
 #### Credit Calculation Engine
 - Multi-channel support (SMS, email, push notifications)
-- Frequency-based multipliers (one-time, daily, weekly, monthly)
-- Audience size considerations
-- Real-time calculation updates
+- Individual audience sizes per channel (SMS, email, push each have separate audience inputs)
+- Frequency-based multipliers (one-time, daily, weekly, monthly, quarterly)
+- Monthly billing basis - all calculations show monthly credit requirements
+- Real-time calculation updates with proper rounding
 
 ## Data Flow
 

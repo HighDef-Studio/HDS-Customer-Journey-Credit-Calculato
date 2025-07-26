@@ -63,9 +63,9 @@ export function BreakdownModal({
                         <th className="px-4 py-2 text-left font-medium text-gray-700">Message Type</th>
                         <th className="px-4 py-2 text-right font-medium text-gray-700">Audience</th>
                         <th className="px-4 py-2 text-right font-medium text-gray-700">Frequency</th>
-                        <th className="px-4 py-2 text-right font-medium text-gray-700">SMS Credits</th>
-                        <th className="px-4 py-2 text-right font-medium text-gray-700">Email Credits</th>
-                        <th className="px-4 py-2 text-right font-medium text-gray-700">Push Credits</th>
+                        <th className="px-4 py-2 text-right font-medium text-gray-700">SMS Credits/Month</th>
+                        <th className="px-4 py-2 text-right font-medium text-gray-700">Email Credits/Month</th>
+                        <th className="px-4 py-2 text-right font-medium text-gray-700">Push Credits/Month</th>
                         <th className="px-4 py-2 text-right font-medium text-gray-700">Total</th>
                       </tr>
                     </thead>
@@ -86,16 +86,16 @@ export function BreakdownModal({
                               {messageType.frequency.replace('-', ' ')}
                             </td>
                             <td className="px-4 py-2 text-right text-gray-900 font-medium">
-                              {credits.sms.toLocaleString()}
+                              {Math.round(credits.sms).toLocaleString()}
                             </td>
                             <td className="px-4 py-2 text-right text-gray-900 font-medium">
-                              {credits.email.toLocaleString()}
+                              {Math.round(credits.email).toLocaleString()}
                             </td>
                             <td className="px-4 py-2 text-right text-gray-900 font-medium">
-                              {credits.push.toLocaleString()}
+                              {Math.round(credits.push).toLocaleString()}
                             </td>
                             <td className="px-4 py-2 text-right text-gray-900 font-semibold">
-                              {messageTotal.toLocaleString()}
+                              {Math.round(messageTotal).toLocaleString()}
                             </td>
                           </tr>
                         );
@@ -107,7 +107,7 @@ export function BreakdownModal({
                           Stage Total:
                         </td>
                         <td className="px-4 py-2 text-right font-bold text-primary-600">
-                          {stageTotal.toLocaleString()}
+                          {Math.round(stageTotal).toLocaleString()}
                         </td>
                       </tr>
                     </tfoot>
@@ -121,10 +121,10 @@ export function BreakdownModal({
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600">
-              Total credits across all stages and message types
+              Total monthly credits across all stages and message types
             </div>
             <div className="text-xl font-bold text-primary-600">
-              {totals.grand.toLocaleString()} credits
+              {Math.round(totals.grand).toLocaleString()} credits/month
             </div>
           </div>
         </div>

@@ -88,26 +88,31 @@ export function ConfigurationPanel({ creditRates, onCreditRatesChange, totals }:
 
       {/* Total Summary */}
       <div className="mt-8 pt-6 border-t border-gray-200">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Total Credits Required</h3>
+        <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Credits Required</h3>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">SMS</span>
-            <span className="font-semibold text-gray-900">{totals.sms.toLocaleString()}</span>
+            <span className="font-semibold text-gray-900">{Math.round(totals.sms).toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Email</span>
-            <span className="font-semibold text-gray-900">{totals.email.toLocaleString()}</span>
+            <span className="font-semibold text-gray-900">{Math.round(totals.email).toLocaleString()}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Push</span>
-            <span className="font-semibold text-gray-900">{totals.push.toLocaleString()}</span>
+            <span className="font-semibold text-gray-900">{Math.round(totals.push).toLocaleString()}</span>
           </div>
           <div className="pt-3 border-t border-gray-200">
             <div className="flex justify-between items-center">
-              <span className="font-medium text-gray-900">Total</span>
-              <span className="text-lg font-bold text-primary-600">{totals.grand.toLocaleString()}</span>
+              <span className="font-medium text-gray-900">Total Monthly</span>
+              <span className="text-lg font-bold text-primary-600">{Math.round(totals.grand).toLocaleString()}</span>
             </div>
           </div>
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-xs text-blue-700">
+            All calculations are shown as monthly totals for billing purposes
+          </p>
         </div>
       </div>
     </div>

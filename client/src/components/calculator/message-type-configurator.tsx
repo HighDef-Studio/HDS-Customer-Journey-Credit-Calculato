@@ -127,6 +127,7 @@ export function MessageTypeConfigurator({
                                 <SelectItem value="daily">Daily</SelectItem>
                                 <SelectItem value="weekly">Weekly</SelectItem>
                                 <SelectItem value="monthly">Monthly</SelectItem>
+                                <SelectItem value="quarterly">Quarterly</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -274,16 +275,16 @@ export function MessageTypeConfigurator({
                       <div className="mt-4 pt-4 border-t border-gray-300">
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div className="text-center">
-                            <div className="text-gray-600">SMS Credits</div>
-                            <div className="font-semibold text-gray-900">{credits.sms.toLocaleString()}</div>
+                            <div className="text-gray-600">SMS Credits/Month</div>
+                            <div className="font-semibold text-gray-900">{Math.round(credits.sms).toLocaleString()}</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-gray-600">Email Credits</div>
-                            <div className="font-semibold text-gray-900">{credits.email.toLocaleString()}</div>
+                            <div className="text-gray-600">Email Credits/Month</div>
+                            <div className="font-semibold text-gray-900">{Math.round(credits.email).toLocaleString()}</div>
                           </div>
                           <div className="text-center">
-                            <div className="text-gray-600">Push Credits</div>
-                            <div className="font-semibold text-gray-900">{credits.push.toLocaleString()}</div>
+                            <div className="text-gray-600">Push Credits/Month</div>
+                            <div className="font-semibold text-gray-900">{Math.round(credits.push).toLocaleString()}</div>
                           </div>
                         </div>
                       </div>

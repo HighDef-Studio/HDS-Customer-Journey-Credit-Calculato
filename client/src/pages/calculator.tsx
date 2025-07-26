@@ -27,17 +27,19 @@ export default function Calculator() {
   const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
 
   const calculateCredits = (messageType: MessageType): MessageType['credits'] => {
-    const frequencyMultiplier = {
-      'one-time': 1,
-      'daily': 365,
-      'weekly': 52,
-      'monthly': 12
+    // Calculate monthly multipliers for billing
+    const monthlyMultiplier = {
+      'one-time': 1 / 12, // One-time spread over 12 months
+      'daily': 30.44, // Average days per month (365/12)
+      'weekly': 4.33, // Average weeks per month (52/12)
+      'monthly': 1,
+      'quarterly': 1 / 3 // Quarterly divided over 3 months
     }[messageType.frequency];
 
     return {
-      sms: messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize * creditRates.sms * frequencyMultiplier : 0,
-      email: messageType.channels.email.enabled ? messageType.channels.email.audienceSize * creditRates.email * frequencyMultiplier : 0,
-      push: messageType.channels.push.enabled ? messageType.channels.push.audienceSize * creditRates.push * frequencyMultiplier : 0,
+      sms: messageType.channels.sms.enabled ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
+      email: messageType.channels.email.enabled ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
+      push: messageType.channels.push.enabled ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
     };
   };
 
