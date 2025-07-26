@@ -334,6 +334,65 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportBreakdown = () => {
+    // Export journey stages and message types with audience counts
+    const csvRows = [];
+    
+    // Header
+    csvRows.push(['Credit Calculator - Message Breakdown']);
+    csvRows.push(['Generated:', new Date().toISOString()]);
+    csvRows.push(['']);
+    
+    // Headers
+    csvRows.push(['Journey Stage', 'Message Type', 'Frequency', 'SMS Audience', 'Email Audience', 'Push Audience', 'SMS Credits', 'Email Credits', 'Push Credits', 'Total Credits']);
+    
+    // Group selected messages by journey stage
+    journeyStageData.forEach(stage => {
+      const stageMessages = messageTypes.filter(mt => mt.journeyStageId === stage.id && mt.selected);
+      
+      if (stageMessages.length > 0) {
+        stageMessages.forEach((mt, index) => {
+          const credits = calculateCredits(mt);
+          csvRows.push([
+            index === 0 ? stage.name : '', // Only show stage name on first message
+            mt.type,
+            mt.frequency,
+            mt.channels.sms.audienceSize || 0,
+            mt.channels.email.audienceSize || 0,
+            mt.channels.push.audienceSize || 0,
+            credits.sms.toFixed(2),
+            credits.email.toFixed(2),
+            credits.push.toFixed(2),
+            (credits.sms + credits.email + credits.push).toFixed(2)
+          ]);
+        });
+        csvRows.push(['']); // Empty row between stages
+      }
+    });
+    
+    // Totals
+    const totals = getTotalCredits();
+    csvRows.push(['']);
+    csvRows.push(['TOTALS', '', '', '', '', '', totals.sms.toFixed(2), totals.email.toFixed(2), totals.push.toFixed(2), totals.grand.toFixed(2)]);
+    
+    // Convert to CSV
+    const csvContent = csvRows.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        return cellStr.includes(',') || cellStr.includes('"') ? `"${cellStr.replace(/"/g, '""')}"` : cellStr;
+      }).join(',')
+    ).join('\n');
+    
+    // Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `credit-calculator-breakdown-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportBlankTemplate = () => {
     // Create a blank template CSV that users can fill out
     const csvRows = [];
@@ -535,6 +594,10 @@ export default function Calculator() {
                   <DropdownMenuItem onClick={handleExportTemplate}>
                     <Download className="h-4 w-4 mr-2" />
                     Current Message Configuration
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportBreakdown}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Message Breakdown with Credits
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleExportExcel}>
                     <Download className="h-4 w-4 mr-2" />
