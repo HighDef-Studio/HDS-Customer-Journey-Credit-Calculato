@@ -50,7 +50,7 @@ export default function Calculator() {
   const calculateCredits = (messageType: MessageType): MessageType['credits'] => {
     // Calculate monthly multipliers for billing
     const monthlyMultiplier = {
-      'one-time': 1 / 12, // One-time spread over 12 months
+      'one-time': 1, // One-time events still count as 1 for monthly billing
       'daily': 30.44, // Average days per month (365/12)
       'weekly': 4.33, // Average weeks per month (52/12)
       'monthly': 1,

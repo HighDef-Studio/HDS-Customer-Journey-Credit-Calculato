@@ -108,6 +108,12 @@ export function ConfigurationPanel({ creditRates, onCreditRatesChange, totals }:
               <span className="text-lg font-bold text-primary-600">{Math.round(totals.grand).toLocaleString()}</span>
             </div>
           </div>
+          <div className="pt-2">
+            <div className="flex justify-between items-center">
+              <span className="font-medium text-gray-900">Total Annual</span>
+              <span className="text-lg font-bold text-green-600">{Math.round(totals.grand * 12).toLocaleString()}</span>
+            </div>
+          </div>
         </div>
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-xs text-blue-700">
