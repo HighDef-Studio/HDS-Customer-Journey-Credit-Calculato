@@ -277,6 +277,51 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
+  const handleSaveTemplate = () => {
+    const templateName = prompt('Enter a name for this template:');
+    if (!templateName) return;
+    
+    const template = {
+      name: templateName,
+      creditRates,
+      journeyStages,
+      messageTypes,
+      createdAt: new Date().toISOString()
+    };
+    
+    // Save to localStorage
+    const savedTemplates = JSON.parse(localStorage.getItem('creditCalculatorTemplates') || '[]');
+    savedTemplates.push(template);
+    localStorage.setItem('creditCalculatorTemplates', JSON.stringify(savedTemplates));
+    
+    alert(`Template "${templateName}" saved successfully!`);
+  };
+
+  const handleLoadTemplate = () => {
+    const savedTemplates = JSON.parse(localStorage.getItem('creditCalculatorTemplates') || '[]');
+    
+    if (savedTemplates.length === 0) {
+      alert('No saved templates found.');
+      return;
+    }
+    
+    const templateNames = savedTemplates.map((t: any, i: number) => `${i + 1}. ${t.name} (${new Date(t.createdAt).toLocaleDateString()})`);
+    const selection = prompt(`Select a template to load:\n${templateNames.join('\n')}\n\nEnter the number:`);
+    
+    if (!selection) return;
+    
+    const index = parseInt(selection) - 1;
+    if (index >= 0 && index < savedTemplates.length) {
+      const template = savedTemplates[index];
+      setCreditRates(template.creditRates);
+      setJourneyStages(template.journeyStages);
+      setMessageTypes(template.messageTypes);
+      alert(`Template "${template.name}" loaded successfully!`);
+    } else {
+      alert('Invalid selection.');
+    }
+  };
+
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
     setJourneyStages(prev => prev.map(stage => ({ ...stage, selected: false })));
@@ -361,8 +406,11 @@ export default function Calculator() {
                     <Button variant="outline" onClick={handleReset}>
                       Reset
                     </Button>
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={handleSaveTemplate}>
                       Save Template
+                    </Button>
+                    <Button variant="outline" onClick={handleLoadTemplate}>
+                      Load Template
                     </Button>
                   </div>
                   <div className="flex gap-3">
