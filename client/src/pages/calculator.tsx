@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw, Upload } from 'lucide-react';
+import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ConfigurationPanel } from '@/components/calculator/configuration-panel';
@@ -446,101 +446,7 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImportTemplate = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      
-      const text = await file.text();
-      const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-      
-      try {
-        const newMessageTypes = [...messageTypes];
-        let isDataSection = false;
-        
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          const cells = line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
-          
-          // Look for the header row to start parsing data
-          if (cells.includes('Journey Stage') && cells.includes('Message Type')) {
-            isDataSection = true;
-            // Skip instruction row if it follows
-            if (i + 1 < lines.length) {
-              const nextLine = lines[i + 1];
-              const nextCells = nextLine.split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
-              if (nextCells[0] === 'Instructions:') {
-                i++; // Skip instruction row
-              }
-            }
-            continue;
-          }
-          
-          if (isDataSection && cells.length >= 7) {
-            const [stageName, messageType, frequency, useMessage, smsAudience, emailAudience, pushAudience] = cells;
-            
-            // Skip empty rows or instruction rows
-            if (!messageType || messageType === '' || stageName === 'Instructions:') continue;
-            
-            // Find the stage by name to get the ID
-            const stage = journeyStageData.find(s => s.name === stageName);
-            let stageId = '';
-            
-            if (stage) {
-              stageId = stage.id;
-            } else {
-              // If stage name is empty (continuation of previous stage), find by message type
-              const existingMt = newMessageTypes.find(mt => mt.type === messageType && mt.selected);
-              if (existingMt) {
-                stageId = existingMt.journeyStageId;
-              } else {
-                // Find any message type with this name to get the stage
-                const anyMt = newMessageTypes.find(mt => mt.type === messageType);
-                if (anyMt) {
-                  stageId = anyMt.journeyStageId;
-                }
-              }
-            }
-            
-            if (stageId && messageType) {
-              const existingMt = newMessageTypes.find(mt => 
-                mt.journeyStageId === stageId && mt.type === messageType
-              );
-              
-              if (existingMt) {
-                existingMt.frequency = frequency as any;
-                existingMt.selected = useMessage?.toUpperCase() === 'TRUE';
-                existingMt.channels.sms.audienceSize = parseInt(smsAudience) || 0;
-                existingMt.channels.email.audienceSize = parseInt(emailAudience) || 0;
-                existingMt.channels.push.audienceSize = parseInt(pushAudience) || 0;
-              }
-            }
-          }
-        }
-        
-        // Update state
-        setMessageTypes(newMessageTypes);
-        
-        // Update journey stages based on imported message types
-        setJourneyStages(prev => prev.map(stage => ({
-          ...stage,
-          selected: newMessageTypes.some(mt => mt.journeyStageId === stage.id && mt.selected)
-        })));
-        
-        toast({
-          title: "Configuration imported successfully",
-          description: "Your message selections and audience sizes have been loaded from the CSV file.",
-        });
-      } catch (error) {
-        alert('Error importing configuration. Please check the file format.');
-        console.error('Import error:', error);
-      }
-    };
-    input.click();
-  };
+
 
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
@@ -581,13 +487,22 @@ export default function Calculator() {
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleImportTemplate}>
-                <Upload className="h-4 w-4 mr-2" />
-                Import CSV
-              </Button>
-              <Button variant="ghost" size="sm">
-                <HelpCircle className="h-4 w-4" />
-              </Button>
+              <div className="relative group">
+                <Button variant="ghost" size="sm">
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+                <div className="absolute right-0 top-10 w-80 bg-gray-900 text-white text-sm rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                  <div className="space-y-2">
+                    <p className="font-semibold">How to use this calculator:</p>
+                    <p>1. Set your credit rates for SMS, Email, and Push</p>
+                    <p>2. Select journey stages and message types</p>
+                    <p>3. Configure audience sizes for each channel</p>
+                    <p>4. Use checkboxes to filter specific channels</p>
+                    <p>5. Export templates or reports as needed</p>
+                  </div>
+                  <div className="absolute top-[-6px] right-4 w-3 h-3 bg-gray-900 rotate-45"></div>
+                </div>
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button className="bg-primary-500 hover:bg-primary-600">
