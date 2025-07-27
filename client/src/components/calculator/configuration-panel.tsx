@@ -49,7 +49,6 @@ export function ConfigurationPanel({
         <Settings className="text-primary-500 h-5 w-5 mr-2" />
         Credit Configuration
       </h2>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Credit Rates and Filters Section */}
         <div className="lg:col-span-2">
@@ -185,7 +184,7 @@ export function ConfigurationPanel({
               </div>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mt-4">All calculations show monthly credit requirements for billing</p>
+          <p className="text-sm mt-4 text-[#00CECB]">All calculations show monthly credit requirements for billing</p>
         </div>
       </div>
     </div>
