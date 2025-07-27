@@ -67,9 +67,9 @@ export default function Calculator() {
     }[messageType.frequency];
 
     return {
-      sms: (messageType.channels.sms.audienceSize > 0 && channelFilters.sms) ? messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier : 0,
-      email: (messageType.channels.email.audienceSize > 0 && channelFilters.email) ? messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier : 0,
-      push: (messageType.channels.push.audienceSize > 0 && channelFilters.push) ? messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier : 0,
+      sms: (messageType.channels.sms.audienceSize > 0 && channelFilters.sms) ? Math.round(messageType.channels.sms.audienceSize * creditRates.sms * monthlyMultiplier) : 0,
+      email: (messageType.channels.email.audienceSize > 0 && channelFilters.email) ? Math.round(messageType.channels.email.audienceSize * creditRates.email * monthlyMultiplier) : 0,
+      push: (messageType.channels.push.audienceSize > 0 && channelFilters.push) ? Math.round(messageType.channels.push.audienceSize * creditRates.push * monthlyMultiplier) : 0,
     };
   };
 

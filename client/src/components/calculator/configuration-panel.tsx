@@ -154,31 +154,37 @@ export function ConfigurationPanel({
 
         {/* Totals Section */}
         <div>
-          <h3 className="text-sm font-bold text-gray-700 mb-4">Monthly Credit Totals</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-4">Credit Totals</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">SMS:</span>
               <span className="text-sm font-medium text-gray-900">
-                {totals.sms.toLocaleString()}
+                {Math.round(totals.sms).toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Email:</span>
               <span className="text-sm font-medium text-gray-900">
-                {totals.email.toLocaleString()}
+                {Math.round(totals.email).toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Push:</span>
               <span className="text-sm font-medium text-gray-900">
-                {totals.push.toLocaleString()}
+                {Math.round(totals.push).toLocaleString()}
               </span>
             </div>
             <div className="pt-2 border-t border-gray-200">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-900">Total:</span>
+                <span className="text-sm font-medium text-gray-900">Monthly Total:</span>
                 <span className="text-lg font-semibold text-primary-600">
-                  {totals.grand.toLocaleString()}
+                  {Math.round(totals.grand).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm font-medium text-gray-900">Annual Total:</span>
+                <span className="text-lg font-semibold text-[#00CECB]">
+                  {Math.round(totals.grand * 12).toLocaleString()}
                 </span>
               </div>
             </div>
