@@ -115,7 +115,7 @@ export function ConfigurationPanel({
 
             {/* Channel Filters */}
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Include in Calculations</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Include Message Types in Calculation</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -148,7 +148,7 @@ export function ConfigurationPanel({
                   </Label>
                 </div>
               </div>
-              
+              <p className="text-sm text-gray-600 mt-2 italic">Use audience size fields to specify how many people receive each message</p>
             </div>
           </div>
         </div>
@@ -184,7 +184,7 @@ export function ConfigurationPanel({
               </div>
             </div>
           </div>
-          <p className="text-sm mt-4 text-[#00CECB]">All calculations show monthly credit requirements for billing</p>
+          <p className="text-sm text-gray-600 mt-4 italic">All calculations show monthly credit requirements for billing</p>
         </div>
       </div>
     </div>
