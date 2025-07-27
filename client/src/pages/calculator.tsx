@@ -699,9 +699,9 @@ export default function Calculator() {
       </header>
 
       <main className="min-h-screen px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 min-h-full">
-          {/* Column 1: Credit Configuration */}
-          <div className="xl:col-span-1">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Top Row: Credit Configuration - Full Width */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
             <ConfigurationPanel
               creditRates={creditRates}
               onCreditRatesChange={setCreditRates}
@@ -711,8 +711,9 @@ export default function Calculator() {
             />
           </div>
 
-          {/* Column 2: Journey Stage Selection */}
-          <div className="xl:col-span-1">
+          {/* Bottom Row: Journey Stage Selection and Message Configuration */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column: Journey Stage Selection */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
               <JourneyStageSelector
                 journeyStages={journeyStages}
@@ -722,10 +723,8 @@ export default function Calculator() {
                 expandedStages={expandedStages}
               />
             </div>
-          </div>
 
-          {/* Column 3: Message Type Configuration */}
-          <div className="xl:col-span-1">
+            {/* Right Column: Message Type Configuration */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
               <MessageTypeConfigurator
                 journeyStages={journeyStages}
@@ -737,8 +736,6 @@ export default function Calculator() {
             </div>
           </div>
         </div>
-
-
       </main>
 
       {/* Breakdown Modal */}
