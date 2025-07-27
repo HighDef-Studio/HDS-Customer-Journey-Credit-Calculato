@@ -656,13 +656,21 @@ export default function Calculator() {
                 <Button variant="ghost" size="sm">
                   <HelpCircle className="h-4 w-4" />
                 </Button>
-                <div className="absolute right-0 top-10 w-80 bg-gray-900 text-white text-sm rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                <div className="absolute right-0 top-10 w-96 bg-gray-900 text-white text-sm rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
                   <div className="space-y-2">
                     <p className="font-semibold">How to use this calculator:</p>
                     <p>1. Set your credit rates for SMS, Email, and Push</p>
                     <p>2. Select journey stages and message types</p>
                     <p>3. Configure audience sizes for each channel</p>
                     <p>4. Use checkboxes to filter specific channels</p>
+                    
+                    <div className="pt-2 border-t border-gray-700">
+                      <p className="font-semibold">Export/Import:</p>
+                      <p>• Export creates a CSV with all message types</p>
+                      <p>• Modify the CSV in Excel or similar programs</p>
+                      <p className="text-yellow-300">• MUST export first - import requires the same file structure</p>
+                      <p>• Import updates calculator with your changes</p>
+                    </div>
                   </div>
                   <div className="absolute top-[-6px] right-4 w-3 h-3 bg-gray-900 rotate-45"></div>
                 </div>
