@@ -19,7 +19,9 @@ export const journeyStageData = [
       'Monthly Push Offer',
       'Visit Milestone Autoconnect',
       'Standard Weekly Messaging',
-      'Brand / Category Campaigns'
+      'Brand / Category Campaigns',
+      'Birthday Message',
+      'Seasonal Promos'
     ]
   },
   {
@@ -43,13 +45,5 @@ export const journeyStageData = [
       'Tier Upgrade Notice'
     ]
   },
-  {
-    id: 'evergreen-loyalty-value-add',
-    name: 'Evergreen Loyalty Value Add',
-    messageTypes: [
-      'Birthday Message',
-      'Seasonal Promos',
-      'Wallet Status Check-In'
-    ]
-  }
+
 ];
