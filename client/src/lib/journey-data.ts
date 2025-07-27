@@ -8,9 +8,7 @@ export const journeyStageData = [
       '2nd Visit Milestone',
       '3rd Visit Milestone',
       '4th Visit Milestone',
-      'Joined but No Purchase',
-      '"Just Joined" Drip Series',
-      'App Download Prompt (if applicable)'
+      'Joined but No Purchase'
     ]
   },
   {
@@ -21,10 +19,7 @@ export const journeyStageData = [
       'Monthly Push Offer',
       'Visit Milestone Autoconnect',
       'Standard Weekly Messaging',
-      'Brand / Category Campaigns',
-      'Countdown / Reminder Messaging',
-      'Post-Purchase Product Education',
-      'Loyalty Points Build Reminder'
+      'Brand / Category Campaigns'
     ]
   },
   {
@@ -34,9 +29,7 @@ export const journeyStageData = [
       'Winback - 45 Days',
       'Winback - 90 Days',
       'Winback - 180+ Days',
-      'Points Expiring - 90 Days',
-      'Points Expiring - 30 Days',
-      'Inactivity Drips (30 / 50 / 70 Days)'
+      'Points Expiring - 30 Days'
     ]
   },
   {
@@ -46,23 +39,17 @@ export const journeyStageData = [
       'VIP Spender',
       'Frequent Flyer',
       'Big Purchase Milestone',
-      'Lifetime Value Tier Unlock',
       'Referral Program Trigger',
-      'Tier Upgrade Notice',
-      'Referral Prompt at Peak Engagement'
+      'Tier Upgrade Notice'
     ]
   },
   {
     id: 'evergreen-loyalty-value-add',
     name: 'Evergreen Loyalty Value Add',
     messageTypes: [
-      'Birthday Drip Campaign',
+      'Birthday Message',
       'Seasonal Promos',
-      'Referral Program Reminder',
-      'Wallet Status Check-In',
-      'Interest-Based Campaigns',
-      'General Loyalty Sync',
-      'Category Interest Follow-Up'
+      'Wallet Status Check-In'
     ]
   }
 ];

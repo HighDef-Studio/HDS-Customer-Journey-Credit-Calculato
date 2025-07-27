@@ -447,14 +447,6 @@ export default function Calculator() {
   };
 
   const handleExportResults = () => {
-    // Get only selected message types
-    const selectedMessageTypes = messageTypes.filter(mt => mt.selected);
-    
-    if (selectedMessageTypes.length === 0) {
-      alert('No message types configured. Please select and configure message types before exporting.');
-      return;
-    }
-
     // Create CSV headers
     const headers = [
       'Journey Stage',
@@ -467,21 +459,21 @@ export default function Calculator() {
       'Push Frequency'
     ];
 
-    // Create CSV rows
+    // Create CSV rows - include ALL message types, not just selected ones
     const csvRows = [headers];
 
-    selectedMessageTypes.forEach(mt => {
+    messageTypes.forEach(mt => {
       const stage = journeyStageData.find(s => s.id === mt.journeyStageId);
       const stageName = stage ? stage.name : '';
       
       csvRows.push([
         stageName,
         mt.type,
-        mt.channels.sms.enabled ? mt.channels.sms.audienceSize.toString() : '0',
+        mt.channels.sms.audienceSize.toString(),
         mt.channels.sms.enabled ? mt.frequency : '',
-        mt.channels.email.enabled ? mt.channels.email.audienceSize.toString() : '0',
+        mt.channels.email.audienceSize.toString(),
         mt.channels.email.enabled ? mt.frequency : '',
-        mt.channels.push.enabled ? mt.channels.push.audienceSize.toString() : '0',
+        mt.channels.push.audienceSize.toString(),
         mt.channels.push.enabled ? mt.frequency : ''
       ]);
     });
