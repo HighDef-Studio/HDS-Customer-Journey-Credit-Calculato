@@ -446,7 +446,63 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportResults = () => {
+    // Get only selected message types
+    const selectedMessageTypes = messageTypes.filter(mt => mt.selected);
+    
+    if (selectedMessageTypes.length === 0) {
+      alert('No message types configured. Please select and configure message types before exporting.');
+      return;
+    }
 
+    // Create CSV headers
+    const headers = [
+      'Journey Stage',
+      'Message Type',
+      'SMS Audience Size',
+      'SMS Frequency',
+      'Email Audience Size', 
+      'Email Frequency',
+      'Push Audience Size',
+      'Push Frequency'
+    ];
+
+    // Create CSV rows
+    const csvRows = [headers];
+
+    selectedMessageTypes.forEach(mt => {
+      const stage = journeyStageData.find(s => s.id === mt.journeyStageId);
+      const stageName = stage ? stage.name : '';
+      
+      csvRows.push([
+        stageName,
+        mt.type,
+        mt.channels.sms.enabled ? mt.channels.sms.audienceSize.toString() : '0',
+        mt.channels.sms.enabled ? mt.frequency : '',
+        mt.channels.email.enabled ? mt.channels.email.audienceSize.toString() : '0',
+        mt.channels.email.enabled ? mt.frequency : '',
+        mt.channels.push.enabled ? mt.channels.push.audienceSize.toString() : '0',
+        mt.channels.push.enabled ? mt.frequency : ''
+      ]);
+    });
+
+    // Convert to CSV string
+    const csvContent = csvRows.map(row => 
+      row.map(cell => {
+        const cellStr = String(cell);
+        return cellStr.includes(',') || cellStr.includes('"') ? `"${cellStr.replace(/"/g, '""')}"` : cellStr;
+      }).join(',')
+    ).join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `journey-credit-results-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
@@ -481,6 +537,10 @@ export default function Calculator() {
               <Button variant="ghost" size="sm" onClick={handleReset}>
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleExportResults}>
+                <Download className="h-4 w-4 mr-2" />
+                Export Results
               </Button>
               <div className="relative group">
                 <Button variant="ghost" size="sm">
