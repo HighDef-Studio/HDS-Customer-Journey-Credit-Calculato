@@ -55,7 +55,7 @@ export function ConfigurationPanel({
           <div className="space-y-6">
             {/* Credit Rates */}
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Credit Rates per Message</h3>
+              <h3 className="text-sm font-bold text-gray-700 mb-4">Credit Rates per Message</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="sms-rate" className="block text-sm text-gray-600 mb-1">
@@ -115,7 +115,7 @@ export function ConfigurationPanel({
 
             {/* Channel Filters */}
             <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Include Message Types in Calculation</h3>
+              <h3 className="text-sm font-bold text-gray-700 mb-4">Include Message Types in Calculation</h3>
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
@@ -154,7 +154,7 @@ export function ConfigurationPanel({
 
         {/* Totals Section */}
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Credit Totals</h3>
+          <h3 className="text-sm font-bold text-gray-700 mb-4">Monthly Credit Totals</h3>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">SMS:</span>
@@ -184,7 +184,7 @@ export function ConfigurationPanel({
             </div>
           </div>
           <div className="mt-4 bg-[#00CECB]/10 border border-[#00CECB]/20 rounded-lg p-3">
-            <p className="text-sm text-[#00CECB] italic">All calculations show monthly credit requirements for billing</p>
+            <p className="text-sm text-[#00CECB] italic">Calculations above are shown as monthly totals based on typical billing cycles. Please visit this page on desktop if you are experiencing usability issues.</p>
           </div>
         </div>
       </div>
