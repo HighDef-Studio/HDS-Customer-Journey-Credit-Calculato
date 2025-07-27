@@ -184,7 +184,9 @@ export function ConfigurationPanel({
               </div>
             </div>
           </div>
-          <p className="text-sm text-gray-600 mt-4 italic">All calculations show monthly credit requirements for billing</p>
+          <div className="mt-4 bg-[#00CECB]/10 border border-[#00CECB]/20 rounded-lg p-3">
+            <p className="text-sm text-[#00CECB] italic">All calculations show monthly credit requirements for billing</p>
+          </div>
         </div>
       </div>
     </div>
