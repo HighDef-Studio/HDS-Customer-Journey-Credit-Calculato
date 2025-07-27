@@ -148,7 +148,6 @@ export function ConfigurationPanel({
                   </Label>
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mt-2 italic">Use audience size fields to specify how many people receive each message</p>
             </div>
           </div>
         </div>
