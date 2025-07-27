@@ -456,11 +456,8 @@ export default function Calculator() {
       'Journey Stage',
       'Message Type',
       'SMS Audience Size',
-      'SMS Frequency',
-      'Email Audience Size', 
-      'Email Frequency',
-      'Push Audience Size',
-      'Push Frequency'
+      'Email Audience Size',
+      'Push Audience Size'
     ];
 
     // Create CSV rows - include ALL message types, not just selected ones
@@ -474,11 +471,8 @@ export default function Calculator() {
         stageName,
         mt.type,
         mt.channels.sms.audienceSize.toString(),
-        mt.channels.sms.enabled ? mt.frequency : '',
         mt.channels.email.audienceSize.toString(),
-        mt.channels.email.enabled ? mt.frequency : '',
-        mt.channels.push.audienceSize.toString(),
-        mt.channels.push.enabled ? mt.frequency : ''
+        mt.channels.push.audienceSize.toString()
       ]);
     });
 
@@ -519,7 +513,7 @@ export default function Calculator() {
 
         // Check if first line contains our expected headers
         const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
-        const expectedHeaders = ['Journey Stage', 'Message Type', 'SMS Audience Size', 'SMS Frequency', 'Email Audience Size', 'Email Frequency', 'Push Audience Size', 'Push Frequency'];
+        const expectedHeaders = ['Journey Stage', 'Message Type', 'SMS Audience Size', 'Email Audience Size', 'Push Audience Size'];
         
         if (!expectedHeaders.every(h => headers.includes(h))) {
           alert('CSV file does not contain the expected headers. Please use an exported file or ensure headers match the expected format.');
@@ -533,9 +527,9 @@ export default function Calculator() {
         for (let i = 1; i < lines.length; i++) {
           const cells = lines[i].split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
           
-          if (cells.length < 8) continue; // Skip incomplete rows
+          if (cells.length < 5) continue; // Skip incomplete rows
           
-          const [stageName, messageType, smsAudience, smsFreq, emailAudience, emailFreq, pushAudience, pushFreq] = cells;
+          const [stageName, messageType, smsAudience, emailAudience, pushAudience] = cells;
           
           if (!messageType) continue; // Skip rows without message type
           
@@ -559,16 +553,6 @@ export default function Calculator() {
             existingMt.channels.sms.enabled = smsSize > 0;
             existingMt.channels.email.enabled = emailSize > 0;
             existingMt.channels.push.enabled = pushSize > 0;
-            
-            // Update frequency if provided and valid
-            const validFrequencies = ['daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly'];
-            if (smsFreq && validFrequencies.includes(smsFreq)) {
-              existingMt.frequency = smsFreq as any;
-            } else if (emailFreq && validFrequencies.includes(emailFreq)) {
-              existingMt.frequency = emailFreq as any;
-            } else if (pushFreq && validFrequencies.includes(pushFreq)) {
-              existingMt.frequency = pushFreq as any;
-            }
             
             // Mark as selected if any channel has audience > 0
             existingMt.selected = smsSize > 0 || emailSize > 0 || pushSize > 0;
