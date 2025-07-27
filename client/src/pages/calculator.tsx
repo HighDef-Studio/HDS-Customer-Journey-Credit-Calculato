@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw } from 'lucide-react';
+import { Calculator as CalculatorIcon, Download, HelpCircle, ChevronDown, RotateCcw, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ConfigurationPanel } from '@/components/calculator/configuration-panel';
@@ -8,8 +8,11 @@ import { MessageTypeConfigurator } from '@/components/calculator/message-type-co
 import { BreakdownModal } from '@/components/calculator/breakdown-modal';
 import { type CreditRates, type JourneyStage, type MessageType } from '@shared/schema';
 import { journeyStageData } from '@/lib/journey-data';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Calculator() {
+  const { toast } = useToast();
+  
   const [creditRates, setCreditRates] = useState<CreditRates>({
     sms: 1.00,
     email: 0.10,
@@ -58,6 +61,7 @@ export default function Calculator() {
     const monthlyMultiplier = {
       'daily': 30.44, // Average days per month (365/12)
       'weekly': 4.33, // Average weeks per month (52/12)
+      'bi-weekly': 2.17, // Bi-weekly: every 2 weeks (26/12)
       'monthly': 1,
       'quarterly': 1 / 3 // Quarterly divided over 3 months
     }[messageType.frequency];
@@ -496,6 +500,105 @@ export default function Calculator() {
     URL.revokeObjectURL(url);
   };
 
+  const handleImportResults = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      try {
+        const text = await file.text();
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+        
+        if (lines.length < 2) {
+          alert('CSV file appears to be empty or invalid.');
+          return;
+        }
+
+        // Check if first line contains our expected headers
+        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+        const expectedHeaders = ['Journey Stage', 'Message Type', 'SMS Audience Size', 'SMS Frequency', 'Email Audience Size', 'Email Frequency', 'Push Audience Size', 'Push Frequency'];
+        
+        if (!expectedHeaders.every(h => headers.includes(h))) {
+          alert('CSV file does not contain the expected headers. Please use an exported file or ensure headers match the expected format.');
+          return;
+        }
+
+        // Parse data rows
+        const newMessageTypes = [...messageTypes];
+        let updatedCount = 0;
+
+        for (let i = 1; i < lines.length; i++) {
+          const cells = lines[i].split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+          
+          if (cells.length < 8) continue; // Skip incomplete rows
+          
+          const [stageName, messageType, smsAudience, smsFreq, emailAudience, emailFreq, pushAudience, pushFreq] = cells;
+          
+          if (!messageType) continue; // Skip rows without message type
+          
+          // Find corresponding message type in our data
+          const existingMt = newMessageTypes.find(mt => {
+            const stage = journeyStageData.find(s => s.id === mt.journeyStageId);
+            return stage?.name === stageName && mt.type === messageType;
+          });
+          
+          if (existingMt) {
+            // Update audience sizes
+            const smsSize = parseInt(smsAudience) || 0;
+            const emailSize = parseInt(emailAudience) || 0;
+            const pushSize = parseInt(pushAudience) || 0;
+            
+            existingMt.channels.sms.audienceSize = smsSize;
+            existingMt.channels.email.audienceSize = emailSize;
+            existingMt.channels.push.audienceSize = pushSize;
+            
+            // Update enabled status based on audience size > 0
+            existingMt.channels.sms.enabled = smsSize > 0;
+            existingMt.channels.email.enabled = emailSize > 0;
+            existingMt.channels.push.enabled = pushSize > 0;
+            
+            // Update frequency if provided and valid
+            const validFrequencies = ['daily', 'weekly', 'bi-weekly', 'monthly', 'quarterly'];
+            if (smsFreq && validFrequencies.includes(smsFreq)) {
+              existingMt.frequency = smsFreq as any;
+            } else if (emailFreq && validFrequencies.includes(emailFreq)) {
+              existingMt.frequency = emailFreq as any;
+            } else if (pushFreq && validFrequencies.includes(pushFreq)) {
+              existingMt.frequency = pushFreq as any;
+            }
+            
+            // Mark as selected if any channel has audience > 0
+            existingMt.selected = smsSize > 0 || emailSize > 0 || pushSize > 0;
+            
+            updatedCount++;
+          }
+        }
+        
+        // Update state
+        setMessageTypes(newMessageTypes);
+        
+        // Update journey stages to be selected if they have selected message types
+        setJourneyStages(prev => prev.map(stage => ({
+          ...stage,
+          selected: newMessageTypes.some(mt => mt.journeyStageId === stage.id && mt.selected)
+        })));
+        
+        toast({
+          title: "Import successful",
+          description: `Updated ${updatedCount} message types with new data.`,
+        });
+        
+      } catch (error) {
+        console.error('Import error:', error);
+        alert('Error reading CSV file. Please check the file format and try again.');
+      }
+    };
+    input.click();
+  };
+
   const handleReset = () => {
     setCreditRates({ sms: 1.00, email: 0.10, push: 0.05 });
     setChannelFilters({ sms: true, email: true, push: true });
@@ -530,10 +633,25 @@ export default function Calculator() {
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleExportResults}>
-                <Download className="h-4 w-4 mr-2" />
-                Export Results
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export / Import
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportResults}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Results
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleImportResults}>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Import Results
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <div className="relative group">
                 <Button variant="ghost" size="sm">
                   <HelpCircle className="h-4 w-4" />
