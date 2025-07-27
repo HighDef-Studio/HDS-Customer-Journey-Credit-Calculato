@@ -149,27 +149,7 @@ export function ConfigurationPanel({
                   </Label>
                 </div>
               </div>
-            </div>
-
-            {/* Helper Text and Disclaimers */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">Usage Instructions</h4>
-              <div className="text-sm text-blue-800 space-y-1">
-                <p>• Set your credit rates for each communication channel above</p>
-                <p>• Select journey stages and configure message types on the right</p>
-                <p>• Use audience size fields to specify how many people receive each message</p>
-                <p>• All calculations show monthly credit requirements for billing</p>
-              </div>
-            </div>
-
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-amber-900 mb-2">Export/Import Workflow</h4>
-              <div className="text-sm text-amber-800 space-y-1">
-                <p>• Export creates a CSV template with all configured message types</p>
-                <p>• Modify audience sizes in Excel or similar spreadsheet programs</p>
-                <p className="font-medium text-amber-900">• MUST export first - import requires the same file structure</p>
-                <p>• Import updates the calculator with your modified audience data</p>
-              </div>
+              <p className="text-sm text-gray-600 mt-2">• Use audience size fields to specify how many people receive each message</p>
             </div>
           </div>
         </div>
@@ -205,16 +185,7 @@ export function ConfigurationPanel({
               </div>
             </div>
           </div>
-
-          <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Calculation Notes</h4>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p>• Credits = Audience Size × Credit Rate × Frequency Multiplier</p>
-              <p>• Frequency multipliers: Daily (30x), Weekly (4.33x), Bi-weekly (2.17x), Monthly (1x), Quarterly (0.33x)</p>
-              <p>• All totals are calculated on a monthly basis for billing purposes</p>
-              <p>• Uncheck channels above to exclude them from calculations</p>
-            </div>
-          </div>
+          <p className="text-sm text-gray-600 mt-4">All calculations show monthly credit requirements for billing</p>
         </div>
       </div>
     </div>
