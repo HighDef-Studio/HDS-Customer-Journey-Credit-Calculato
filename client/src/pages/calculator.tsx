@@ -511,8 +511,40 @@ export default function Calculator() {
           return;
         }
 
+        // Helper function to parse CSV line with proper quoted field handling
+        const parseCSVLine = (line: string): string[] => {
+          const result: string[] = [];
+          let current = '';
+          let inQuotes = false;
+          
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            
+            if (char === '"') {
+              if (inQuotes && line[i + 1] === '"') {
+                // Handle escaped quotes
+                current += '"';
+                i++; // Skip next quote
+              } else {
+                // Toggle quote state
+                inQuotes = !inQuotes;
+              }
+            } else if (char === ',' && !inQuotes) {
+              // Field separator outside quotes
+              result.push(current.trim());
+              current = '';
+            } else {
+              current += char;
+            }
+          }
+          
+          // Add last field
+          result.push(current.trim());
+          return result;
+        };
+
         // Check if first line contains our expected headers
-        const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
+        const headers = parseCSVLine(lines[0]);
         const expectedHeaders = ['Journey Stage', 'Message Type', 'SMS Audience Size', 'Email Audience Size', 'Push Audience Size'];
         
         if (!expectedHeaders.every(h => headers.includes(h))) {
@@ -525,7 +557,7 @@ export default function Calculator() {
         let updatedCount = 0;
 
         for (let i = 1; i < lines.length; i++) {
-          const cells = lines[i].split(',').map(cell => cell.replace(/^"|"$/g, '').trim());
+          const cells = parseCSVLine(lines[i]);
           
           if (cells.length < 5) continue; // Skip incomplete rows
           
