@@ -31,11 +31,11 @@ export default function Calculator() {
   const [messageTypes, setMessageTypes] = useState<MessageType[]>(() => {
     const allMessageTypes: MessageType[] = [];
     journeyStageData.forEach(stage => {
-      const stageMessageTypes = stage.messageTypes.map(messageType => ({
-        id: `${stage.id}-${messageType.replace(/[^a-zA-Z0-9]/g, '-')}`,
+      const stageMessageTypes = stage.messageTypes.map(messageTypeData => ({
+        id: `${stage.id}-${messageTypeData.type.replace(/[^a-zA-Z0-9]/g, '-')}`,
         journeyStageId: stage.id,
-        type: messageType,
-        frequency: 'monthly' as const,
+        type: messageTypeData.type,
+        frequency: messageTypeData.frequency as 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly',
         selected: false,
         channels: { 
           sms: { enabled: false, audienceSize: 0 },
@@ -418,11 +418,11 @@ export default function Calculator() {
     
     // Add all possible message types grouped by journey stage
     journeyStageData.forEach(stage => {
-      stage.messageTypes.forEach((messageType, index) => {
+      stage.messageTypes.forEach((messageTypeData, index) => {
         csvRows.push([
           index === 0 ? stage.name : '', // Only show stage name on first message type
-          messageType,
-          'monthly', // default frequency
+          messageTypeData.type,
+          messageTypeData.frequency, // Use the default frequency from data
           'FALSE', // default not selected
           '', // empty for user to fill
           '', 
@@ -588,17 +588,23 @@ export default function Calculator() {
     setChannelFilters({ sms: true, email: true, push: true });
     setJourneyStages(prev => prev.map(stage => ({ ...stage, selected: false })));
     setExpandedStages(new Set());
-    // Reset message types to unselected but keep them initialized
-    setMessageTypes(prev => prev.map(mt => ({ 
-      ...mt, 
-      selected: false,
-      frequency: 'monthly',
-      channels: {
-        sms: { enabled: false, audienceSize: 0 },
-        email: { enabled: false, audienceSize: 0 },
-        push: { enabled: false, audienceSize: 0 }
-      }
-    })));
+    // Reset message types to unselected but keep original frequency settings
+    setMessageTypes(prev => prev.map(mt => {
+      // Find the original frequency from journey data
+      const stage = journeyStageData.find(s => s.id === mt.journeyStageId);
+      const originalMessageType = stage?.messageTypes.find(msgType => msgType.type === mt.type);
+      
+      return { 
+        ...mt, 
+        selected: false,
+        frequency: originalMessageType?.frequency as 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly' || 'monthly',
+        channels: {
+          sms: { enabled: false, audienceSize: 0 },
+          email: { enabled: false, audienceSize: 0 },
+          push: { enabled: false, audienceSize: 0 }
+        }
+      };
+    }));
   };
 
   const totals = getTotalCredits();

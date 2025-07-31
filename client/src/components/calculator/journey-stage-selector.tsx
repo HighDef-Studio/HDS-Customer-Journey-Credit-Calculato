@@ -65,7 +65,7 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
                       </Badge>
                     )}
                     <span className="text-sm text-gray-500">
-                      {stageData?.messageTypes.length || 0} available
+                      {stageMessageTypes.length} available
                     </span>
                   </div>
                 </div>
@@ -82,12 +82,24 @@ export function JourneyStageSelector({ journeyStages, messageTypes, onMessageTyp
                           onCheckedChange={() => onMessageTypeToggle(messageType.id)}
                           className="h-4 w-4"
                         />
-                        <Label 
-                          className="text-sm text-gray-900 flex-1 cursor-pointer"
-                          onClick={() => onMessageTypeToggle(messageType.id)}
-                        >
-                          {messageType.type}
-                        </Label>
+                        <div className="flex-1 flex items-center justify-between">
+                          <Label 
+                            className="text-sm text-gray-900 cursor-pointer"
+                            onClick={() => onMessageTypeToggle(messageType.id)}
+                          >
+                            {messageType.type}
+                          </Label>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              messageType.frequency === 'weekly' ? 'border-orange-300 text-orange-700 bg-orange-50' :
+                              messageType.frequency === 'quarterly' ? 'border-purple-300 text-purple-700 bg-purple-50' :
+                              'border-blue-300 text-blue-700 bg-blue-50'
+                            }`}
+                          >
+                            {messageType.frequency}
+                          </Badge>
+                        </div>
                       </div>
                     ))}
                   </div>
