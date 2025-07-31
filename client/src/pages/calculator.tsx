@@ -558,6 +558,15 @@ export default function Calculator() {
             existingMt.selected = smsSize > 0 || emailSize > 0 || pushSize > 0;
             
             updatedCount++;
+          } else {
+            // Log unmatched items for debugging
+            console.log(`No match found for: Stage="${stageName}", MessageType="${messageType}"`);
+            console.log('Available message types for this stage:', 
+              newMessageTypes.filter(mt => {
+                const stage = journeyStageData.find(s => s.id === mt.journeyStageId);
+                return stage?.name === stageName;
+              }).map(mt => mt.type)
+            );
           }
         }
         

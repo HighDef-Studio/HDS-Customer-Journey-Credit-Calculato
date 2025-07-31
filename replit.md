@@ -42,12 +42,23 @@ Preferred communication style: Simple, everyday language.
   - Total credit calculations
 
 #### Journey Stage Management
-- Pre-defined journey stages with associated message types:
-  - New Member Activation (8 message types)
-  - Habituation & Repeat Visits (8 message types)
-  - Churn Risk / Re-engagement (6 message types)
-  - High-Value Customer Recognition (7 message types)
-  - Evergreen Loyalty Value Add (7 message types)
+- Pre-defined journey stages with associated message types and default frequencies:
+  - New Member Activation (7 message types, all monthly)
+  - Habituation & Repeat Visits (4 message types, mix of weekly and monthly)
+  - Churn Risk / Re-engagement (6 message types, mostly monthly with quarterly point expiration)
+  - High-Value Customer Recognition (3 message types, monthly and quarterly)
+  - Evergreen Loyalty Value Add (2 message types, weekly and monthly)
+
+## Recent Changes (January 2025)
+
+### Journey Stage Structure Update
+- Updated journey stage configuration to match user's loyalty program spreadsheet
+- Modified message types and frequencies to align with specific business requirements:
+  - Flash Sales/Happy Hours: Weekly frequency
+  - Point Expiration messages: Quarterly frequency
+  - Most engagement messages: Monthly frequency
+- Enhanced UI to display frequency badges (color-coded: orange for weekly, purple for quarterly, blue for monthly)
+- Fixed CSV import/export functionality to handle new data structure
 
 #### Credit Calculation Engine
 - Multi-channel support (SMS, email, push notifications)
