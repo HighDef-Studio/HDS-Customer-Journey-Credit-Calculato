@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
+// Get the GitHub Pages base name from the repo name
+const repoName = "HDS-Customer-Journey-Credit-Calculato";
+
+// Base is only needed for GitHub Pages, not for development
+const base = process.env.NODE_ENV === "production" ? `/${repoName}/` : "/";
+
 export default defineConfig({
   plugins: [
     react(),
@@ -24,10 +30,13 @@ export default defineConfig({
     },
   },
   root: path.resolve(import.meta.dirname, "client"),
-  base: '/HDS-Customer-Journey-Credit-Calculato/',
+  // Add proper base for GitHub Pages deployment
+  base: base,
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Provide source maps for better debugging
+    sourcemap: true,
   },
   server: {
     fs: {

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>Customer Journey Credit Calculator - HighDef</title>
+    <meta name="description" content="Calculate loyalty program credits for multi-channel messaging across customer journey stages. Optimize SMS, email, and push notification strategies.">
+    <!-- Debug information to help diagnose issues -->
+    <script type="text/javascript">
+        window.addEventListener('load', function() {
+            console.log('Page loaded. BASE_URL:', window.location.pathname);
+            console.log('Document root element:', document.getElementById('root'));
+        });
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+    <noscript>You need to enable JavaScript to run this application.</noscript>
+
+    <!-- Fallback content if scripts fail to load -->
+    <div id="loading-fallback" style="display: none; text-align: center; padding-top: 100px;">
+        <h2>Loading the Calculator...</h2>
+        <p>If the calculator doesn't appear in a few seconds, please make sure JavaScript is enabled.</p>
+    </div>
+
+    <script>
+        // Show loading message after a short delay if content hasn't loaded
+        setTimeout(function() {
+            if (document.getElementById('root').children.length === 0) {
+                document.getElementById('loading-fallback').style.display = 'block';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
