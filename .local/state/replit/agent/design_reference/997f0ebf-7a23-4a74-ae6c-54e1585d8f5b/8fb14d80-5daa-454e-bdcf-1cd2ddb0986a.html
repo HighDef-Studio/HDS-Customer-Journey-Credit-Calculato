@@ -1,0 +1,689 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS/Email/Push Credit Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    primary: {
+                        50: '#eff6ff',
+                        500: '#2563eb',
+                        600: '#1d4ed8',
+                        700: '#1e40af'
+                    }
+                }
+            }
+        }
+    };
+    </script>
+</head>
+<body class="bg-gray-50 font-inter text-gray-900 min-h-screen">
+    <!-- @COMPONENT: Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-calculator text-primary-500 text-2xl mr-3"></i>
+                    <h1 class="text-xl font-semibold text-gray-900">Credit Calculator</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700" data-event="click:showHelp">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg font-medium transition-colors" data-event="click:exportResults">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- @COMPONENT: ConfigurationPanel -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-cog text-primary-500 mr-2"></i>
+                        Credit Configuration
+                    </h2>
+                    
+                    <!-- @STATE: creditRates: {sms: 1, email: 0.1, push: 0.05} -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">SMS Credits per Message</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" min="0" value="1.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="creditRates.sms" data-event="input:updateCalculations">
+                                <span class="absolute right-3 top-2 text-gray-500 text-sm">credits</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Credits per Message</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" min="0" value="0.10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="creditRates.email" data-event="input:updateCalculations">
+                                <span class="absolute right-3 top-2 text-gray-500 text-sm">credits</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Push Credits per Message</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" min="0" value="0.05" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="creditRates.push" data-event="input:updateCalculations">
+                                <span class="absolute right-3 top-2 text-gray-500 text-sm">credits</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Summary -->
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-sm font-medium text-gray-700 mb-4">Total Credits Required</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">SMS</span>
+                                <span class="font-semibold text-gray-900" data-bind="totals.sms" data-mock="true">1,250</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Email</span>
+                                <span class="font-semibold text-gray-900" data-bind="totals.email" data-mock="true">487.5</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Push</span>
+                                <span class="font-semibold text-gray-900" data-bind="totals.push" data-mock="true">162.5</span>
+                            </div>
+                            <div class="pt-3 border-t border-gray-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-gray-900">Total</span>
+                                    <span class="text-lg font-bold text-primary-600" data-bind="totals.grand" data-mock="true">1,900</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: ConfigurationPanel -->
+
+            <!-- @COMPONENT: CalculatorMain -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    
+                    <!-- Journey Stage Selection -->
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-route text-primary-500 mr-2"></i>
+                            Journey Stage Selection
+                        </h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- @MAP: journeyStages.map(stage => ( -->
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors cursor-pointer" data-event="click:selectStage" data-bind="stage.id">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-medium text-gray-900" data-mock="true">New Member Activation</h3>
+                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" data-bind="stage.selected">
+                                </div>
+                                <p class="text-sm text-gray-600" data-mock="true">8 message types available</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-50 text-primary-700" data-mock="true">
+                                        5 selected
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors cursor-pointer" data-event="click:selectStage">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-medium text-gray-900" data-mock="true">Habituation & Repeat Visits</h3>
+                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                </div>
+                                <p class="text-sm text-gray-600" data-mock="true">8 message types available</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-mock="true">
+                                        0 selected
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors cursor-pointer" data-event="click:selectStage">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-medium text-gray-900" data-mock="true">Churn Risk / Re-engagement</h3>
+                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" checked>
+                                </div>
+                                <p class="text-sm text-gray-600" data-mock="true">6 message types available</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-50 text-primary-700" data-mock="true">
+                                        3 selected
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors cursor-pointer" data-event="click:selectStage">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-medium text-gray-900" data-mock="true">High-Value Customer Recognition</h3>
+                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                </div>
+                                <p class="text-sm text-gray-600" data-mock="true">7 message types available</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-mock="true">
+                                        0 selected
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors cursor-pointer md:col-span-2" data-event="click:selectStage">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="font-medium text-gray-900" data-mock="true">Evergreen Loyalty Value Add</h3>
+                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                </div>
+                                <p class="text-sm text-gray-600" data-mock="true">7 message types available</p>
+                                <div class="mt-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700" data-mock="true">
+                                        0 selected
+                                    </span>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                    </div>
+
+                    <!-- Message Type Configuration -->
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-list text-primary-500 mr-2"></i>
+                            Message Type Configuration
+                        </h3>
+
+                        <!-- New Member Activation Messages -->
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-md font-medium text-gray-900">New Member Activation</h4>
+                                <button class="text-sm text-primary-600 hover:text-primary-700" data-event="click:expandCollapse">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- @MAP: selectedMessageTypes.map(messageType => ( -->
+                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+                                        <div class="lg:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="messageType.type" data-event="change:updateCalculations">
+                                                <option value="after-join-welcome" selected data-mock="true">After Join / Welcome</option>
+                                                <option value="first-visit-reminder" data-mock="true">First Visit Reminder</option>
+                                                <option value="2nd-visit-milestone" data-mock="true">2nd Visit Milestone</option>
+                                                <option value="3rd-visit-milestone" data-mock="true">3rd Visit Milestone</option>
+                                                <option value="4th-visit-milestone" data-mock="true">4th Visit Milestone</option>
+                                                <option value="joined-no-purchase" data-mock="true">Joined but No Purchase</option>
+                                                <option value="just-joined-drip" data-mock="true">"Just Joined" Drip Series</option>
+                                                <option value="app-download-prompt" data-mock="true">App Download Prompt</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Audience Size</label>
+                                            <input type="number" min="0" value="5000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="messageType.audienceSize" data-event="input:updateCalculations" data-mock="true">
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-bind="messageType.frequency" data-event="change:updateCalculations">
+                                                <option value="one-time" selected data-mock="true">One-time</option>
+                                                <option value="daily" data-mock="true">Daily</option>
+                                                <option value="weekly" data-mock="true">Weekly</option>
+                                                <option value="monthly" data-mock="true">Monthly</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Channel Selection</label>
+                                            <div class="flex space-x-4">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" checked class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" data-bind="messageType.channels.sms" data-event="change:updateCalculations">
+                                                    <span class="ml-2 text-sm text-gray-700">SMS</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" checked class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" data-bind="messageType.channels.email" data-event="change:updateCalculations">
+                                                    <span class="ml-2 text-sm text-gray-700">Email</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500" data-bind="messageType.channels.push" data-event="change:updateCalculations">
+                                                    <span class="ml-2 text-sm text-gray-700">Push</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-1 flex justify-end">
+                                            <button class="text-red-600 hover:text-red-700" data-event="click:removeMessageType">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Credit Breakdown for this message type -->
+                                    <div class="mt-4 pt-4 border-t border-gray-300">
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div class="text-center">
+                                                <div class="text-gray-600">SMS Credits</div>
+                                                <div class="font-semibold text-gray-900" data-bind="messageType.credits.sms" data-mock="true">5,000</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Email Credits</div>
+                                                <div class="font-semibold text-gray-900" data-bind="messageType.credits.email" data-mock="true">500</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Push Credits</div>
+                                                <div class="font-semibold text-gray-900" data-bind="messageType.credits.push" data-mock="true">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+                                        <div class="lg:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                <option value="first-visit-reminder" selected data-mock="true">First Visit Reminder</option>
+                                                <option value="after-join-welcome" data-mock="true">After Join / Welcome</option>
+                                                <option value="2nd-visit-milestone" data-mock="true">2nd Visit Milestone</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Audience Size</label>
+                                            <input type="number" min="0" value="2500" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-mock="true">
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                <option value="weekly" selected data-mock="true">Weekly</option>
+                                                <option value="one-time" data-mock="true">One-time</option>
+                                                <option value="daily" data-mock="true">Daily</option>
+                                                <option value="monthly" data-mock="true">Monthly</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Channel Selection</label>
+                                            <div class="flex space-x-4">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">SMS</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" checked class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Email</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" checked class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Push</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-1 flex justify-end">
+                                            <button class="text-red-600 hover:text-red-700">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t border-gray-300">
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div class="text-center">
+                                                <div class="text-gray-600">SMS Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">0</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Email Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">1,000</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Push Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">500</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                                
+                                <button class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary-300 hover:text-primary-600 transition-colors" data-event="click:addMessageType">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Add Message Type
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Churn Risk / Re-engagement Messages -->
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-md font-medium text-gray-900">Churn Risk / Re-engagement</h4>
+                                <button class="text-sm text-primary-600 hover:text-primary-700" data-event="click:expandCollapse">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+                                        <div class="lg:col-span-3">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                <option value="winback-45" selected data-mock="true">Winback - 45 Days</option>
+                                                <option value="winback-90" data-mock="true">Winback - 90 Days</option>
+                                                <option value="winback-180" data-mock="true">Winback - 180+ Days</option>
+                                                <option value="points-expiring-90" data-mock="true">Points Expiring - 90 Days</option>
+                                                <option value="points-expiring-30" data-mock="true">Points Expiring - 30 Days</option>
+                                                <option value="inactivity-drips" data-mock="true">Inactivity Drips (30 / 50 / 70 Days)</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Audience Size</label>
+                                            <input type="number" min="0" value="1250" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" data-mock="true">
+                                        </div>
+                                        
+                                        <div class="lg:col-span-2">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                                            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                <option value="monthly" selected data-mock="true">Monthly</option>
+                                                <option value="one-time" data-mock="true">One-time</option>
+                                                <option value="daily" data-mock="true">Daily</option>
+                                                <option value="weekly" data-mock="true">Weekly</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Channel Selection</label>
+                                            <div class="flex space-x-4">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" checked class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">SMS</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Email</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500">
+                                                    <span class="ml-2 text-sm text-gray-700">Push</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="lg:col-span-1 flex justify-end">
+                                            <button class="text-red-600 hover:text-red-700">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t border-gray-300">
+                                        <div class="grid grid-cols-3 gap-4 text-sm">
+                                            <div class="text-center">
+                                                <div class="text-gray-600">SMS Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">1,250</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Email Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">0</div>
+                                            </div>
+                                            <div class="text-center">
+                                                <div class="text-gray-600">Push Credits</div>
+                                                <div class="font-semibold text-gray-900" data-mock="true">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-primary-300 hover:text-primary-600 transition-colors" data-event="click:addMessageType">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Add Message Type
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                        <div class="flex flex-col sm:flex-row gap-3 justify-between">
+                            <div class="flex gap-3">
+                                <button class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-event="click:resetCalculator">
+                                    <i class="fas fa-refresh mr-2"></i>Reset
+                                </button>
+                                <button class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-event="click:saveTemplate">
+                                    <i class="fas fa-bookmark mr-2"></i>Save Template
+                                </button>
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="px-6 py-2 text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors" data-event="click:previewBreakdown">
+                                    <i class="fas fa-eye mr-2"></i>Preview Breakdown
+                                </button>
+                                <button class="px-6 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition-colors" data-event="click:generateReport">
+                                    <i class="fas fa-file-download mr-2"></i>Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- @END_COMPONENT: CalculatorMain -->
+
+        </div>
+    </main>
+
+    <!-- @COMPONENT: BreakdownModal -->
+    <div id="breakdownModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" data-event="click:closeModal">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden" data-event="click:stopPropagation">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-900">Detailed Credit Breakdown</h2>
+                    <button class="text-gray-400 hover:text-gray-600" data-event="click:closeModal">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="p-6 overflow-y-auto max-h-[70vh]">
+                    <div class="space-y-6">
+                        <!-- @MAP: journeyStages.map(stage => ( -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-900 mb-4" data-mock="true">New Member Activation</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left font-medium text-gray-700">Message Type</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">Audience</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">Frequency</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">SMS Credits</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">Email Credits</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">Push Credits</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-700">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr data-mock="true">
+                                            <td class="px-4 py-2 text-gray-900">After Join / Welcome</td>
+                                            <td class="px-4 py-2 text-right text-gray-700">5,000</td>
+                                            <td class="px-4 py-2 text-right text-gray-700">One-time</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">5,000</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">500</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">0</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-semibold">5,500</td>
+                                        </tr>
+                                        <tr data-mock="true">
+                                            <td class="px-4 py-2 text-gray-900">First Visit Reminder</td>
+                                            <td class="px-4 py-2 text-right text-gray-700">2,500</td>
+                                            <td class="px-4 py-2 text-right text-gray-700">Weekly</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">0</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">1,000</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-medium">500</td>
+                                            <td class="px-4 py-2 text-right text-gray-900 font-semibold">1,500</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="bg-gray-50">
+                                        <tr>
+                                            <td colspan="6" class="px-4 py-2 text-right font-medium text-gray-900">Stage Total:</td>
+                                            <td class="px-4 py-2 text-right font-bold text-primary-600" data-mock="true">7,000</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex justify-between items-center">
+                        <div class="text-sm text-gray-600">Total credits across all stages and message types</div>
+                        <div class="text-xl font-bold text-primary-600" data-mock="true">1,900 credits</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: BreakdownModal -->
+
+    <script>
+        // TODO: Implement business logic, API calls, or state management
+        
+        (function() {
+            // Initialize calculator functionality
+            const calculator = {
+                creditRates: {
+                    sms: 1.00,
+                    email: 0.10,
+                    push: 0.05
+                },
+                
+                journeyStages: [
+                    {
+                        id: 'new-member-activation',
+                        name: 'New Member Activation',
+                        messageTypes: [
+                            'After Join / Welcome',
+                            'First Visit Reminder',
+                            '2nd Visit Milestone',
+                            '3rd Visit Milestone',
+                            '4th Visit Milestone',
+                            'Joined but No Purchase',
+                            '"Just Joined" Drip Series',
+                            'App Download Prompt (if applicable)'
+                        ],
+                        selected: true
+                    },
+                    {
+                        id: 'habituation-repeat-visits',
+                        name: 'Habituation & Repeat Visits',
+                        messageTypes: [
+                            'Flash Sale / Happy Hour',
+                            'Monthly Push Offer',
+                            'Visit Milestone Autoconnect',
+                            'Standard Weekly Messaging',
+                            'Brand / Category Campaigns',
+                            'Countdown / Reminder Messaging',
+                            'Post-Purchase Product Education',
+                            'Loyalty Points Build Reminder'
+                        ],
+                        selected: false
+                    },
+                    {
+                        id: 'churn-risk-reengagement',
+                        name: 'Churn Risk / Re-engagement',
+                        messageTypes: [
+                            'Winback - 45 Days',
+                            'Winback - 90 Days',
+                            'Winback - 180+ Days',
+                            'Points Expiring - 90 Days',
+                            'Points Expiring - 30 Days',
+                            'Inactivity Drips (30 / 50 / 70 Days)'
+                        ],
+                        selected: true
+                    },
+                    {
+                        id: 'high-value-customer-recognition',
+                        name: 'High-Value Customer Recognition',
+                        messageTypes: [
+                            'VIP Spender',
+                            'Frequent Flyer',
+                            'Big Purchase Milestone',
+                            'Lifetime Value Tier Unlock',
+                            'Referral Program Trigger',
+                            'Tier Upgrade Notice',
+                            'Referral Prompt at Peak Engagement'
+                        ],
+                        selected: false
+                    },
+                    {
+                        id: 'evergreen-loyalty-value-add',
+                        name: 'Evergreen Loyalty Value Add',
+                        messageTypes: [
+                            'Birthday Drip Campaign',
+                            'Seasonal Promos',
+                            'Referral Program Reminder',
+                            'Wallet Status Check-In',
+                            'Interest-Based Campaigns',
+                            'General Loyalty Sync',
+                            'Category Interest Follow-Up'
+                        ],
+                        selected: false
+                    }
+                ],
+                
+                updateCalculations: function() {
+                    // TODO: Implement real-time calculation logic
+                    console.log('Updating calculations...');
+                },
+                
+                exportResults: function() {
+                    // TODO: Implement export functionality
+                    console.log('Exporting results...');
+                },
+                
+                showBreakdown: function() {
+                    document.getElementById('breakdownModal').classList.remove('hidden');
+                },
+                
+                closeModal: function() {
+                    document.getElementById('breakdownModal').classList.add('hidden');
+                }
+            };
+            
+            // Event listeners for interactive elements
+            document.addEventListener('click', function(e) {
+                const target = e.target.closest('[data-event]');
+                if (!target) return;
+                
+                const eventHandler = target.getAttribute('data-event').split(':')[1];
+                
+                if (calculator[eventHandler]) {
+                    calculator[eventHandler](e);
+                }
+            });
+            
+            // Prevent modal close when clicking inside modal content
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('[data-event="click:stopPropagation"]')) {
+                    e.stopPropagation();
+                }
+            });
+            
+            window.creditCalculator = calculator;
+        })();
+    </script>
+
+</body>
+</html>
