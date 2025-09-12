@@ -32,12 +32,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Build
-        run: npm run build
+      - name: Build using custom script
+        run: ./build-gh-pages.sh
         
       - name: Setup Pages
         uses: actions/configure-pages@v3
-        
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
